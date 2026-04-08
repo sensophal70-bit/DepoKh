@@ -3,54 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin DepoKh - Fixed</title>
+    <title>DepoKh Admin - Total System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;700&display=swap" rel="stylesheet">
-    <style>body { font-family: 'Kantumruy Pro', sans-serif; }</style>
+    <style>body { font-family: 'Kantumruy Pro', sans-serif; background-color: #f1f5f9; }</style>
 </head>
-<body class="bg-gray-100 p-4">
+<body class="p-4 pb-32">
 
-    <div class="max-w-md mx-auto bg-white p-6 rounded-[2.5rem] shadow-xl">
-        <h1 class="text-xl font-bold text-blue-900 mb-6 text-center italic">Admin Panel</h1>
+    <div class="max-w-md mx-auto">
+        <div class="bg-white p-6 rounded-[2.5rem] shadow-xl border border-white mb-6">
+            <h2 id="formTitle" class="text-xl font-bold text-blue-900 mb-6 italic text-center text-blue-900">DepoKh Admin</h2>
+            <input type="hidden" id="editId">
+            <div class="space-y-4">
+                <input type="file" id="fileInput" accept="image/*" class="w-full text-xs font-bold text-blue-900 bg-blue-50 p-3 rounded-2xl border-2 border-dashed border-blue-200">
+                <input type="text" id="pName" placeholder="ឈ្មោះផលិតផល" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none text-sm">
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="number" id="pCost" placeholder="ថ្លៃដើម ($)" class="w-full p-4 bg-red-50 border border-red-100 rounded-2xl outline-none text-sm font-bold">
+                    <input type="number" id="pPrice" placeholder="ថ្លៃលក់ ($)" class="w-full p-4 bg-green-50 border border-green-100 rounded-2xl outline-none text-sm font-bold text-green-700">
+                </div>
 
-        <div class="space-y-4">
-            <input type="file" id="fileInput" accept="image/*" class="w-full text-xs">
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="number" id="pStock" placeholder="ចំនួនស្តុក" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none text-sm font-bold">
+                    <div class="flex space-x-2">
+                        <select id="pCategory" class="flex-1 p-4 bg-gray-50 border rounded-2xl text-sm outline-none"><option value="">-- ប្រភេទ --</option></select>
+                        <button type="button" id="btnAddCat" class="bg-blue-900 text-white px-3 rounded-2xl font-bold">+</button>
+                    </div>
+                </div>
 
-            <input type="text" id="pName" placeholder="ឈ្មោះផលិតផល" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none">
-            
-            <div class="grid grid-cols-2 gap-3">
-                <input type="number" id="pPrice" placeholder="តម្លៃ ($)" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none">
-                <input type="number" id="pStock" placeholder="ចំនួនស្តុក" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none">
-            </div>
-
-            <div>
-                <label class="text-[10px] font-bold text-gray-400 ml-2">ប្រភេទ</label>
-                <div class="flex space-x-2">
-                    <select id="pCategory" class="flex-1 p-4 bg-gray-50 border rounded-2xl text-sm">
-                        <option value="">-- រើសប្រភេទ --</option>
-                    </select>
-                    <button type="button" id="btnAddCat" class="bg-blue-900 text-white px-4 rounded-2xl font-bold">+</button>
+                <div class="flex space-x-2 pt-2">
+                    <button id="btnSave" class="flex-1 bg-blue-900 text-white p-5 rounded-3xl font-bold shadow-lg active:scale-95 transition">រក្សាទុក</button>
+                    <button id="btnCancel" class="hidden bg-gray-400 text-white px-6 rounded-3xl font-bold italic">បោះបង់</button>
                 </div>
             </div>
-
-            <div class="p-4 bg-gray-50 rounded-3xl border border-gray-100 space-y-3">
-                <div class="flex justify-between items-center">
-                    <label class="text-[10px] font-bold text-gray-400">អ្នកផ្គត់ផ្គង់</label>
-                    <button type="button" id="btnAddSup" class="text-blue-900 text-[10px] font-bold">+ បន្ថែមថ្មី</button>
-                </div>
-                <select id="sSelect" class="w-full p-3 bg-white border rounded-xl text-sm">
-                    <option value="">-- រើសអ្នកផ្គត់ផ្គង់ --</option>
-                </select>
-                <input type="tel" id="sPhone" placeholder="លេខទូរស័ព្ទ" readonly class="w-full p-3 bg-gray-100 border rounded-xl text-xs font-mono italic">
-            </div>
-
-            <button id="btnSave" class="w-full bg-blue-900 text-white p-5 rounded-3xl font-bold shadow-lg">រក្សាទុកផលិតផល</button>
         </div>
+
+        <div class="grid grid-cols-2 gap-3 mb-6">
+            <div class="bg-white p-4 rounded-3xl shadow-sm border-l-4 border-red-500">
+                <p class="text-[10px] text-gray-400 font-bold uppercase">ដើមទុនក្នុងស្តុក</p>
+                <p id="totalCostDisplay" class="text-lg font-black text-red-500">$0.00</p>
+            </div>
+            <div class="bg-white p-4 rounded-3xl shadow-sm border-l-4 border-green-500">
+                <p class="text-[10px] text-gray-400 font-bold uppercase">ចំណេញរំពឹងទុក</p>
+                <p id="totalProfitDisplay" class="text-lg font-black text-green-600">$0.00</p>
+            </div>
+        </div>
+
+        <input type="text" id="searchInput" placeholder="🔍 ស្វែងរកទំនិញ..." class="w-full p-4 mb-6 rounded-2xl border-none shadow-md outline-none">
+
+        <div id="productList" class="space-y-4"></div>
+    </div>
+
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 flex justify-around items-center shadow-2xl z-50 rounded-t-[2rem]">
+        <button id="btnDaily" class="flex flex-col items-center"><span class="text-xs font-bold text-blue-900">បិទបញ្ជីថ្ងៃ</span></button>
+        <a href="history.html" class="flex flex-col items-center"><span class="text-xs font-bold text-gray-400">ប្រវត្តិលក់</span></a>
+        <button id="btnMonthly" class="flex flex-col items-center"><span class="text-xs font-bold text-gray-400">របាយការណ៍ខែ</span></button>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp, where, getDocs } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBezQ6VqgEpju9TpUzFB6xvgRkA71Z4YMk",
@@ -65,82 +77,139 @@
         const db = getFirestore(app);
         const IMGBB_API_KEY = "34723d8c15e48e075329257c0e0478ff";
 
-        // ១. ទាញ Category
+        let allProducts = [];
+
+        // Fetch Dropdown
         onSnapshot(collection(db, "categories"), (snap) => {
             const sel = document.getElementById('pCategory');
-            sel.innerHTML = '<option value="">-- រើសប្រភេទ --</option>';
+            sel.innerHTML = '<option value="">-- ប្រភេទ --</option>';
             snap.forEach(d => sel.innerHTML += `<option value="${d.data().name}">${d.data().name}</option>`);
         });
 
-        // ២. ទាញ Supplier
-        onSnapshot(collection(db, "suppliers"), (snap) => {
-            const sel = document.getElementById('sSelect');
-            sel.innerHTML = '<option value="">-- រើសអ្នកផ្គត់ផ្គង់ --</option>';
-            snap.forEach(d => sel.innerHTML += `<option value="${d.data().name}" data-phone="${d.data().phone}">${d.data().name}</option>`);
+        // Real-time List & Summary
+        onSnapshot(query(collection(db, "products"), orderBy("createdAt", "desc")), (snapshot) => {
+            allProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderProducts(allProducts);
         });
 
-        // ៣. បន្ថែម Category (Click Event)
-        document.getElementById('btnAddCat').addEventListener('click', async () => {
-            const name = prompt("បញ្ចូលឈ្មោះប្រភេទថ្មី:");
-            if (name) {
-                try {
-                    await addDoc(collection(db, "categories"), { name });
-                    alert("បានបន្ថែមប្រភេទថ្មី!");
-                } catch (e) { alert("Error: " + e.message); }
-            }
-        });
+        function renderProducts(data) {
+            let totalCost = 0, totalProfit = 0;
+            const listDiv = document.getElementById('productList');
+            listDiv.innerHTML = data.map(item => {
+                totalCost += (item.cost || 0) * (item.stock || 0);
+                totalProfit += ((item.price || 0) - (item.cost || 0)) * (item.stock || 0);
+                return `
+                    <div class="bg-white p-4 rounded-3xl shadow-sm flex flex-col space-y-3 border border-white">
+                        <div class="flex items-center space-x-3">
+                            <img src="${item.image}" class="w-14 h-14 object-cover rounded-2xl bg-gray-50">
+                            <div class="flex-1">
+                                <h4 class="font-bold text-gray-800 text-sm">${item.name}</h4>
+                                <p class="text-[10px] text-gray-400">ដើម: $${item.cost} | លក់: $${item.price}</p>
+                            </div>
+                            <button onclick="sellProduct('${item.id}')" class="bg-green-600 text-white px-4 py-2 rounded-xl text-xs font-bold">លក់</button>
+                        </div>
+                        <div class="flex justify-between items-center pt-2 border-t border-gray-50">
+                            <div class="flex space-x-3 text-[10px] font-bold uppercase">
+                                <button onclick="editProduct('${item.id}')" class="text-blue-600">កែ</button>
+                                <button onclick="deleteProduct('${item.id}')" class="text-red-400">លុប</button>
+                            </div>
+                            <p class="text-[10px] font-bold text-blue-900">ស្តុក: ${item.stock}</p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            document.getElementById('totalCostDisplay').innerText = `$${totalCost.toLocaleString()}`;
+            document.getElementById('totalProfitDisplay').innerText = `$${totalProfit.toLocaleString()}`;
+        }
 
-        // ៤. បន្ថែម Supplier (Click Event)
-        document.getElementById('btnAddSup').addEventListener('click', async () => {
-            const name = prompt("បញ្ចូលឈ្មោះក្រុមហ៊ុន:");
-            const phone = prompt("បញ្ចូលលេខទូរស័ព្ទ:");
-            if (name && phone) {
-                try {
-                    await addDoc(collection(db, "suppliers"), { name, phone });
-                    alert("បានបន្ថែមអ្នកផ្គត់ផ្គង់ថ្មី!");
-                } catch (e) { alert("Error: " + e.message); }
-            }
-        });
+        // Sell Function
+        window.sellProduct = async (id) => {
+            const p = allProducts.find(i => i.id === id);
+            const qty = prompt(`លក់ ${p.name}\nបញ្ចូលចំនួនត្រូវលក់:`, "1");
+            if (!qty || isNaN(qty) || parseInt(qty) <= 0) return;
+            
+            const sellQty = parseInt(qty);
+            if (sellQty > p.stock) return alert("ស្តុកមិនគ្រាន់!");
 
-        // ៥. Update Phone អូតូ
-        document.getElementById('sSelect').addEventListener('change', (e) => {
-            const opt = e.target.options[e.target.selectedIndex];
-            document.getElementById('sPhone').value = opt.getAttribute('data-phone') || "";
-        });
-
-        // ៦. រក្សាទុកផលិតផល
-        document.getElementById('btnSave').addEventListener('click', async () => {
-            const file = document.getElementById('fileInput').files[0];
-            const name = document.getElementById('pName').value;
-            const price = document.getElementById('pPrice').value;
-            const btn = document.getElementById('btnSave');
-
-            if (!file || !name || !price) return alert("សូមបំពេញឱ្យគ្រប់!");
-
-            btn.disabled = true;
-            btn.innerText = "កំពុងរក្សាទុក...";
+            const customerName = prompt("បញ្ចូលឈ្មោះអតិថិជន:", "ភ្ញៀវទូទៅ");
 
             try {
-                let fd = new FormData();
-                fd.append("image", file);
-                const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: "POST", body: fd });
-                const img = await res.json();
-
-                await addDoc(collection(db, "products"), {
-                    name,
-                    price: parseFloat(price),
-                    stock: parseInt(document.getElementById('pStock').value) || 0,
-                    category: document.getElementById('pCategory').value,
-                    supplierName: document.getElementById('sSelect').value,
-                    supplierPhone: document.getElementById('sPhone').value,
-                    image: img.data.url,
-                    createdAt: serverTimestamp()
+                await addDoc(collection(db, "sales"), {
+                    productId: id, name: p.name, qty: sellQty, customer: customerName || "ភ្ញៀវទូទៅ",
+                    cost: p.cost, price: p.price, totalSale: p.price * sellQty,
+                    totalProfit: (p.price - p.cost) * sellQty, soldAt: serverTimestamp()
                 });
+                await updateDoc(doc(db, "products", id), { stock: p.stock - sellQty });
+                alert("លក់រួចរាល់!");
+            } catch (e) { alert(e.message); }
+        };
 
-                alert("ជោគជ័យ!");
-                location.reload();
-            } catch (e) { alert(e.message); btn.disabled = false; }
-        });
+        // Save/Update Product
+        document.getElementById('btnSave').onclick = async () => {
+            const id = document.getElementById('editId').value;
+            const file = document.getElementById('fileInput').files[0];
+            const name = document.getElementById('pName').value;
+            const cost = parseFloat(document.getElementById('pCost').value);
+            const price = parseFloat(document.getElementById('pPrice').value);
+            const stock = parseInt(document.getElementById('pStock').value) || 0;
+            const btn = document.getElementById('btnSave');
+
+            if (!name || isNaN(cost) || isNaN(price)) return alert("បំពេញព័ត៌មាន!");
+            btn.disabled = true; btn.innerText = "កំពុងរក្សាទុក...";
+
+            try {
+                let imageUrl = "";
+                if (file) {
+                    let fd = new FormData(); fd.append("image", file);
+                    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: "POST", body: fd });
+                    const img = await res.json(); imageUrl = img.data.url;
+                }
+                const data = { name, cost, price, stock, category: document.getElementById('pCategory').value, updatedAt: serverTimestamp() };
+                if (id) { if (imageUrl) data.image = imageUrl; await updateDoc(doc(db, "products", id), data); }
+                else { if(!file) throw new Error("សូមរើសរូបភាព!"); data.image = imageUrl; data.createdAt = serverTimestamp(); await addDoc(collection(db, "products"), data); }
+                resetForm();
+            } catch (e) { alert(e.message); }
+            btn.disabled = false; btn.innerText = "រក្សាទុក";
+        };
+
+        // Reports
+        async function getReport(type) {
+            const now = new Date();
+            let start = type === 'day' ? new Date(now.getFullYear(), now.getMonth(), now.getDate()) : new Date(now.getFullYear(), now.getMonth(), 1);
+            const q = query(collection(db, "sales"), where("soldAt", ">=", start));
+            const snap = await getDocs(q);
+            let s = 0, p = 0;
+            snap.forEach(d => { s += d.data().totalSale; p += d.data().totalProfit; });
+            alert(`របាយការណ៍ ${type === 'day' ? 'ថ្ងៃនេះ' : 'ខែនេះ'}\nលក់សរុប: $${s.toLocaleString()}\nចំណេញសុទ្ធ: $${p.toLocaleString()}`);
+        }
+        document.getElementById('btnDaily').onclick = () => getReport('day');
+        document.getElementById('btnMonthly').onclick = () => getReport('month');
+
+        // Helpers
+        document.getElementById('btnAddCat').onclick = async () => { const n = prompt("ឈ្មោះប្រភេទ:"); if(n) await addDoc(collection(db, "categories"), { name: n }); };
+        window.editProduct = (id) => {
+            const p = allProducts.find(i => i.id === id);
+            document.getElementById('editId').value = p.id;
+            document.getElementById('pName').value = p.name;
+            document.getElementById('pCost').value = p.cost;
+            document.getElementById('pPrice').value = p.price;
+            document.getElementById('pStock').value = p.stock;
+            document.getElementById('formTitle').innerText = "កែប្រែទិន្នន័យ";
+            document.getElementById('btnCancel').classList.remove('hidden');
+            window.scrollTo({top:0, behavior:'smooth'});
+        };
+        window.deleteProduct = async (id) => { if(confirm("លុប?")) await deleteDoc(doc(db, "products", id)); };
+        function resetForm() {
+            document.getElementById('editId').value=""; document.getElementById('pName').value="";
+            document.getElementById('pCost').value=""; document.getElementById('pPrice').value="";
+            document.getElementById('pStock').value=""; document.getElementById('fileInput').value="";
+            document.getElementById('btnCancel').classList.add('hidden'); document.getElementById('formTitle').innerText="DepoKh Admin";
+        }
+        document.getElementById('btnCancel').onclick = resetForm;
+        document.getElementById('searchInput').onkeyup = (e) => {
+            const term = e.target.value.toLowerCase();
+            renderProducts(allProducts.filter(p => p.name.toLowerCase().includes(term)));
+        };
     </script>
 </body>
 </html>
