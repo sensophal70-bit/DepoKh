@@ -3,37 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DepoKh - ហាងលក់គ្រឿងសំណង់</title>
+    <title>DepoKh - POS System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Kantumruy Pro', sans-serif; }
-    </style>
+    <style>body { font-family: 'Kantumruy Pro', sans-serif; background-color: #f1f5f9; }</style>
 </head>
-<body class="bg-gray-50 pb-10">
+<body class="p-4 pb-20">
 
-    <header class="bg-blue-900 text-white p-4 sticky top-0 z-50 shadow-md">
-        <h1 class="text-center font-bold text-xl uppercase italic tracking-widest">DepoKh</h1>
-    </header>
+    <div class="max-w-md mx-auto">
+        <h1 class="text-2xl font-black text-blue-900 mb-6 italic text-center">DepoKh Sales</h1>
 
-    <main class="p-4">
-        <div class="flex items-center justify-between mb-6">
-            <h3 class="font-bold border-l-4 border-blue-900 pl-2 text-gray-800 text-lg">ផលិតផលគ្រឿងសំណង់</h3>
-            <span class="text-xs text-gray-400">Real-time Update</span>
+        <input type="text" id="searchInput" placeholder="🔍 ស្វែងរកទំនិញ..." class="w-full p-4 mb-6 rounded-3xl border-none shadow-lg outline-none focus:ring-2 focus:ring-blue-500">
+
+        <div id="productList" class="grid grid-cols-1 gap-4">
+            <p class="text-center text-gray-400 py-10">កំពុងទាញទិន្នន័យ...</p>
         </div>
-        
-        <div id="productGrid" class="grid grid-cols-2 gap-4">
-            <div class="col-span-2 text-center py-20 text-gray-400">
-                <p>កំពុងទាញទិន្នន័យពី Firebase...</p>
-            </div>
-        </div>
-    </main>
+    </div>
+
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 flex justify-around shadow-2xl rounded-t-[2rem]">
+        <a href="index.html" class="text-blue-900 font-bold">🏠 លក់ទំនិញ</a>
+        <a href="admin.html" class="text-gray-400 font-bold">⚙️ គ្រប់គ្រង</a>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, query } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, updateDoc, doc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Firebase Config របស់អ្នក
         const firebaseConfig = {
             apiKey: "AIzaSyBezQ6VqgEpju9TpUzFB6xvgRkA71Z4YMk",
             authDomain: "depokh-3ed7c.firebaseapp.com",
@@ -45,53 +40,52 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        let allProducts = [];
 
-        // ទាញទិន្នន័យពី Collection ឈ្មោះ "products"
-        // សម្គាល់៖ ខ្ញុំដក orderBy ចេញសិន ដើម្បីឱ្យប្រាកដថាទិន្នន័យចាស់របស់អ្នកលោតមក
-        const q = query(collection(db, "products"));
-
-        onSnapshot(q, (snapshot) => {
-            const grid = document.getElementById('productGrid');
-            
-            if (snapshot.empty) {
-                grid.innerHTML = `
-                    <div class="col-span-2 text-center py-10 bg-white rounded-2xl border-2 border-dashed border-gray-200">
-                        <p class="text-gray-400">មិនទាន់មានទិន្នន័យក្នុង 'products' ទេ។<br>សូមបង្កើត Collection ឈ្មោះ products ក្នុង Firebase</p>
-                    </div>
-                `;
-                return;
-            }
-
-            grid.innerHTML = "";
-            snapshot.forEach((doc) => {
-                const item = doc.data();
-                
-                // ឆែកមើលថាតើមានរូបភាពពិតប្រាកដឬអត់ បើគ្មានទេប្រើរូប Placeholder
-                const imageSrc = (item.image && item.image.startsWith('http')) 
-                                ? item.image 
-                                : 'https://via.placeholder.com/300x200?text=No+Image';
-
-                grid.innerHTML += `
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col hover:shadow-md transition">
-                        <img src="${imageSrc}" class="h-36 w-full object-cover">
-                        <div class="p-3">
-                            <h4 class="text-sm font-semibold text-gray-700 line-clamp-1">${item.name || 'គ្មានឈ្មោះ'}</h4>
-                            <div class="flex justify-between items-center mt-2">
-                                <span class="text-blue-900 font-extrabold">$${item.price || '0.00'}</span>
-                                <button class="bg-blue-100 text-blue-900 w-8 h-8 rounded-full flex items-center justify-center active:scale-90 transition">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-        }, (error) => {
-            console.error("Firebase Error: ", error);
-            document.getElementById('productGrid').innerHTML = `<p class='text-red-500 text-center col-span-2'>Error: ${error.message}</p>`;
+        onSnapshot(query(collection(db, "products"), orderBy("createdAt", "desc")), (snapshot) => {
+            allProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderProducts(allProducts);
         });
+
+        function renderProducts(data) {
+            const listDiv = document.getElementById('productList');
+            listDiv.innerHTML = data.map(item => `
+                <div class="bg-white p-4 rounded-[2rem] shadow-sm flex items-center space-x-4 border border-white">
+                    <img src="${item.image}" class="w-16 h-16 object-cover rounded-2xl bg-gray-50">
+                    <div class="flex-1">
+                        <h4 class="font-bold text-gray-800 text-sm">${item.name}</h4>
+                        <p class="text-green-600 font-black">$${item.price}</p>
+                        <p class="text-[10px] text-gray-400 font-bold uppercase">ស្តុក: ${item.stock}</p>
+                    </div>
+                    <button onclick="sellProduct('${item.id}')" class="bg-blue-900 text-white px-5 py-3 rounded-2xl font-bold active:scale-90 transition">លក់</button>
+                </div>
+            `).join('');
+        }
+
+        window.sellProduct = async (id) => {
+            const p = allProducts.find(i => i.id === id);
+            const qty = prompt(`លក់ ${p.name}\nបញ្ចូលចំនួន:`, "1");
+            if (!qty || isNaN(qty) || parseInt(qty) <= 0) return;
+            const sellQty = parseInt(qty);
+            if (sellQty > p.stock) return alert("ស្តុកមិនគ្រាន់!");
+
+            const customer = prompt("ឈ្មោះអតិថិជន:", "ភ្ញៀវទូទៅ");
+
+            try {
+                await addDoc(collection(db, "sales"), {
+                    productId: id, name: p.name, qty: sellQty, customer: customer || "ភ្ញៀវទូទៅ",
+                    cost: p.cost, price: p.price, totalSale: p.price * sellQty,
+                    totalProfit: (p.price - p.cost) * sellQty, soldAt: serverTimestamp()
+                });
+                await updateDoc(doc(db, "products", id), { stock: p.stock - sellQty });
+                alert("លក់បានជោគជ័យ!");
+            } catch (e) { alert(e.message); }
+        };
+
+        document.getElementById('searchInput').onkeyup = (e) => {
+            const term = e.target.value.toLowerCase();
+            renderProducts(allProducts.filter(p => p.name.toLowerCase().includes(term)));
+        };
     </script>
 </body>
 </html>
