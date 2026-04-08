@@ -3,21 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DepoKh - Test Data</title>
+    <title>DepoKh - ហាងលក់គ្រឿងសំណង់</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Kantumruy Pro', sans-serif; }
+    </style>
 </head>
-<body class="bg-gray-100 p-5">
+<body class="bg-gray-50 pb-10">
 
-    <h2 class="text-xl font-bold mb-4">បញ្ជីផលិតផល (Real-time)</h2>
-    
-    <div id="productGrid" class="grid grid-cols-2 gap-4">
-        <p class="text-gray-500 italic">កំពុងរង់ចាំទិន្នន័យពី Firebase...</p>
-    </div>
+    <header class="bg-blue-900 text-white p-4 sticky top-0 z-50 shadow-md">
+        <h1 class="text-center font-bold text-xl uppercase italic tracking-widest">DepoKh</h1>
+    </header>
+
+    <main class="p-4">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="font-bold border-l-4 border-blue-900 pl-2 text-gray-800 text-lg">ផលិតផលគ្រឿងសំណង់</h3>
+            <span class="text-xs text-gray-400">Real-time Update</span>
+        </div>
+        
+        <div id="productGrid" class="grid grid-cols-2 gap-4">
+            <div class="col-span-2 text-center py-20 text-gray-400">
+                <p>កំពុងទាញទិន្នន័យពី Firebase...</p>
+            </div>
+        </div>
+    </main>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, query } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+        // Firebase Config របស់អ្នក
         const firebaseConfig = {
             apiKey: "AIzaSyBezQ6VqgEpju9TpUzFB6xvgRkA71Z4YMk",
             authDomain: "depokh-3ed7c.firebaseapp.com",
@@ -31,34 +47,50 @@
         const db = getFirestore(app);
 
         // ទាញទិន្នន័យពី Collection ឈ្មោះ "products"
-        const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
-        
+        // សម្គាល់៖ ខ្ញុំដក orderBy ចេញសិន ដើម្បីឱ្យប្រាកដថាទិន្នន័យចាស់របស់អ្នកលោតមក
+        const q = query(collection(db, "products"));
+
         onSnapshot(q, (snapshot) => {
             const grid = document.getElementById('productGrid');
             
             if (snapshot.empty) {
-                grid.innerHTML = "<p>រកមិនឃើញទិន្នន័យក្នុង Collection 'products' ទេ។</p>";
-                console.log("No data found in Firestore");
+                grid.innerHTML = `
+                    <div class="col-span-2 text-center py-10 bg-white rounded-2xl border-2 border-dashed border-gray-200">
+                        <p class="text-gray-400">មិនទាន់មានទិន្នន័យក្នុង 'products' ទេ។<br>សូមបង្កើត Collection ឈ្មោះ products ក្នុង Firebase</p>
+                    </div>
+                `;
                 return;
             }
 
-            grid.innerHTML = ""; 
+            grid.innerHTML = "";
             snapshot.forEach((doc) => {
                 const item = doc.data();
-                console.log("Item found:", item); // សម្រាប់ឆែកក្នុង Console
+                
+                // ឆែកមើលថាតើមានរូបភាពពិតប្រាកដឬអត់ បើគ្មានទេប្រើរូប Placeholder
+                const imageSrc = (item.image && item.image.startsWith('http')) 
+                                ? item.image 
+                                : 'https://via.placeholder.com/300x200?text=No+Image';
 
                 grid.innerHTML += `
-                    <div class="bg-white p-3 rounded-xl shadow">
-                        <img src="${item.image}" class="h-32 w-full object-cover rounded-lg mb-2">
-                        <h4 class="font-bold text-sm">${item.name}</h4>
-                        <p class="text-blue-900">$${item.price}</p>
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden flex flex-col hover:shadow-md transition">
+                        <img src="${imageSrc}" class="h-36 w-full object-cover">
+                        <div class="p-3">
+                            <h4 class="text-sm font-semibold text-gray-700 line-clamp-1">${item.name || 'គ្មានឈ្មោះ'}</h4>
+                            <div class="flex justify-between items-center mt-2">
+                                <span class="text-blue-900 font-extrabold">$${item.price || '0.00'}</span>
+                                <button class="bg-blue-100 text-blue-900 w-8 h-8 rounded-full flex items-center justify-center active:scale-90 transition">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 `;
             });
         }, (error) => {
-            // ប្រសិនបើមានបញ្ហា Rules វានឹងលោត Error នៅទីនេះ
-            console.error("Firebase Error:", error.message);
-            alert("Error: " + error.message);
+            console.error("Firebase Error: ", error);
+            document.getElementById('productGrid').innerHTML = `<p class='text-red-500 text-center col-span-2'>Error: ${error.message}</p>`;
         });
     </script>
 </body>
