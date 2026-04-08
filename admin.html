@@ -3,45 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DepoKh Admin - បញ្ចូលទំនិញ</title>
+    <title>Admin DepoKh - បញ្ចូលទំនិញតាម Link</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;700&display=swap" rel="stylesheet">
     <style>body { font-family: 'Kantumruy Pro', sans-serif; }</style>
 </head>
-<body class="bg-gray-100 p-5 pb-20">
+<body class="bg-gray-100 p-5">
 
-    <div class="max-w-md mx-auto bg-white p-6 rounded-3xl shadow-xl border border-gray-200">
+    <div class="max-w-md mx-auto bg-white p-6 rounded-3xl shadow-xl border border-gray-100">
         <div class="flex items-center justify-between mb-6">
             <h2 class="text-xl font-bold text-blue-900 italic">ADMIN DEPOKH</h2>
-            <span class="bg-blue-100 text-blue-800 text-[10px] px-2 py-1 rounded-full uppercase font-bold">Manager Mode</span>
+            <span class="bg-green-100 text-green-700 text-[10px] px-2 py-1 rounded-full font-bold uppercase">No-Upload Mode</span>
         </div>
 
-        <div class="space-y-5">
-            <div class="bg-gray-50 p-4 rounded-2xl border-2 border-dashed border-gray-200 text-center">
-                <label class="block text-sm font-medium text-gray-600 mb-2">រូបភាពផលិតផល (ពីទូរស័ព្ទ)</label>
-                <input type="file" id="fileInput" accept="image/*" class="w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-blue-900 file:text-white hover:file:bg-blue-800">
-            </div>
-
+        <div class="space-y-4">
             <div>
                 <label class="block text-xs text-gray-400 mb-1 ml-2">ឈ្មោះផលិតផល</label>
-                <input type="text" id="pName" placeholder="ឧទាហរណ៍៖ ស៊ីម៉ងត៍ កញ្ចក់" class="w-full p-4 bg-gray-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition">
+                <input type="text" id="pName" placeholder="ឧទាហរណ៍៖ ស៊ីម៉ងត៍ Lion" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition">
             </div>
             
             <div>
                 <label class="block text-xs text-gray-400 mb-1 ml-2">តម្លៃ ($)</label>
-                <input type="number" id="pPrice" placeholder="0.00" class="w-full p-4 bg-gray-50 border-none rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition">
+                <input type="number" id="pPrice" placeholder="0.00" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition">
             </div>
 
-            <button onclick="uploadAndSave()" id="btnSave" class="w-full bg-blue-900 text-white p-4 rounded-2xl font-bold shadow-lg active:scale-95 transition disabled:bg-gray-400">
-                <span id="btnText">រក្សាទុកទិន្នន័យ</span>
+            <div>
+                <label class="block text-xs text-gray-400 mb-1 ml-2">Link រូបភាព (URL)</label>
+                <input type="text" id="pImgUrl" placeholder="ផាស (Paste) Link រូបភាពទីនេះ..." class="w-full p-4 bg-gray-50 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 transition">
+                <p class="text-[10px] text-gray-400 mt-1 ml-2">*ចម្លង Link រូបភាពពី Google ឬ Facebook</p>
+            </div>
+
+            <button onclick="uploadAndSave()" id="btnSave" class="w-full bg-blue-900 text-white p-4 rounded-2xl font-bold shadow-lg active:scale-95 transition">
+                រក្សាទុកទៅកាន់ Index
             </button>
+        </div>
+
+        <div class="mt-10">
+            <h3 class="font-bold text-gray-700 mb-4 border-l-4 border-blue-900 pl-2">បញ្ជីទំនិញបច្ចុប្បន្ន</h3>
+            <div id="adminProductList" class="space-y-3">
+                <p class="text-xs text-gray-400 text-center">កំពុងទាញទិន្នន័យ...</p>
+            </div>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js";
+        import { getFirestore, collection, addDoc, onSnapshot, deleteDoc, doc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         // Firebase Config របស់អ្នក
         const firebaseConfig = {
@@ -55,48 +62,72 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        const storage = getStorage(app);
 
+        // ១. មុខងារបញ្ចូលទិន្នន័យ
         window.uploadAndSave = async function() {
-            const file = document.getElementById('fileInput').files[0];
             const name = document.getElementById('pName').value;
             const price = document.getElementById('pPrice').value;
+            const imgUrl = document.getElementById('pImgUrl').value;
             const btn = document.getElementById('btnSave');
-            const btnText = document.getElementById('btnText');
 
-            if (!file || !name || !price) {
-                alert("សូមមេត្តាបំពេញព័ត៌មានឱ្យគ្រប់ និងរើសរូបភាពផលិតផល!");
+            if (!name || !price || !imgUrl) {
+                alert("សូមបំពេញព័ត៌មានឱ្យគ្រប់គ្រាន់!");
                 return;
             }
 
-            // ប្តូរស្ថានភាពប៊ូតុង
             btn.disabled = true;
-            btnText.innerText = "កំពុងបង្ហោះរូបភាព...";
+            btn.innerText = "កំពុងរក្សាទុក...";
 
             try {
-                // ១. បង្ហោះរូបភាពទៅ Firebase Storage
-                const storageRef = ref(storage, 'products/' + Date.now() + "_" + file.name);
-                const snapshot = await uploadBytes(storageRef, file);
-                const downloadURL = await getDownloadURL(snapshot.ref);
-
-                // ២. រក្សាទុកទិន្នន័យចូល Firestore ក្នុង Collection "products"
-                btnText.innerText = "កំពុងរក្សាទុកក្នុង Database...";
                 await addDoc(collection(db, "products"), {
                     name: name,
                     price: parseFloat(price),
-                    image: downloadURL,
+                    image: imgUrl,
                     createdAt: serverTimestamp()
                 });
-
-                alert("ផលិតផលត្រូវបានបង្ហោះជោគជ័យ!");
-                location.reload();
-
+                alert("បញ្ចូលជោគជ័យ!");
+                document.getElementById('pName').value = "";
+                document.getElementById('pPrice').value = "";
+                document.getElementById('pImgUrl').value = "";
             } catch (e) {
-                console.error("Error: ", e);
-                alert("មានបញ្ហា៖ " + e.message);
+                alert("Error: " + e.message);
             } finally {
                 btn.disabled = false;
-                btnText.innerText = "រក្សាទុកទិន្នន័យ";
+                btn.innerText = "រក្សាទុកទៅកាន់ Index";
+            }
+        }
+
+        // ២. មុខងារបង្ហាញបញ្ជីទំនិញ និង ប៊ូតុងលុប (Delete)
+        const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
+        onSnapshot(q, (snapshot) => {
+            const listDiv = document.getElementById('adminProductList');
+            listDiv.innerHTML = "";
+            
+            snapshot.forEach((snapshotDoc) => {
+                const item = snapshotDoc.data();
+                listDiv.innerHTML += `
+                    <div class="flex items-center justify-between bg-gray-50 p-3 rounded-xl border border-gray-100">
+                        <div class="flex items-center space-x-3">
+                            <img src="${item.image}" class="w-10 h-10 object-cover rounded-lg bg-gray-200">
+                            <div>
+                                <h4 class="text-xs font-bold text-gray-700">${item.name}</h4>
+                                <p class="text-[10px] text-blue-900">$${item.price}</p>
+                            </div>
+                        </div>
+                        <button onclick="deleteProduct('${snapshotDoc.id}')" class="text-red-500 p-2 hover:bg-red-50 rounded-full transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                        </button>
+                    </div>
+                `;
+            });
+        });
+
+        // ៣. មុខងារលុបទិន្នន័យ
+        window.deleteProduct = async function(id) {
+            if (confirm("តើអ្នកច្បាស់ទេថាចង់លុបទំនិញនេះ?")) {
+                await deleteDoc(doc(db, "products", id));
             }
         }
     </script>
