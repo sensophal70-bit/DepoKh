@@ -3,43 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DepoKh Admin Pro - Stock & Supplier</title>
+    <title>DepoKh Admin Pro - Management System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;700&display=swap" rel="stylesheet">
-    <style>body { font-family: 'Kantumruy Pro', sans-serif; }</style>
+    <style>
+        body { font-family: 'Kantumruy Pro', sans-serif; background-color: #f3f4f6; }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+    </style>
 </head>
-<body class="bg-gray-100 p-4 pb-20">
+<body class="pb-20">
 
-    <div class="max-w-md mx-auto">
-        <div class="bg-white p-6 rounded-3xl shadow-lg mb-6 border border-gray-100">
-            <h2 id="formTitle" class="text-xl font-bold text-blue-900 mb-6 italic text-center">បន្ថែមផលិតផលថ្មី</h2>
+    <div class="max-w-md mx-auto p-4">
+        <div class="flex items-center justify-between my-6">
+            <h1 class="text-2xl font-bold text-blue-900 italic">DepoKh Admin</h1>
+            <div class="bg-blue-900 text-white text-[10px] px-3 py-1 rounded-full uppercase font-bold tracking-tighter">Pro Version</div>
+        </div>
+
+        <div class="glass-card p-6 rounded-[2rem] shadow-xl border border-white mb-8">
+            <h2 id="formTitle" class="text-lg font-bold text-gray-800 mb-5">បន្ថែមផលិតផលថ្មី</h2>
             
             <input type="hidden" id="editId">
             
             <div class="space-y-4">
-                <div class="bg-blue-50 p-3 rounded-2xl border-2 border-dashed border-blue-200 text-center">
-                    <input type="file" id="fileInput" accept="image/*" class="w-full text-xs font-semibold">
+                <div class="relative group bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl p-4 text-center hover:border-blue-400 transition">
+                    <input type="file" id="fileInput" accept="image/*" class="w-full text-xs font-medium cursor-pointer">
+                    <p class="text-[10px] text-gray-400 mt-1">ថតរូបផលិតផល ឬរើសពីបណ្ណាល័យ</p>
                 </div>
 
-                <input type="text" id="pName" placeholder="ឈ្មោះផលិតផល" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                <input type="text" id="pName" placeholder="ឈ្មោះផលិតផល" class="w-full p-4 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 text-sm border-none shadow-sm">
                 
                 <div class="grid grid-cols-2 gap-3">
-                    <input type="number" id="pPrice" placeholder="តម្លៃលក់ ($)" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 text-sm">
-                    <input type="number" id="pStock" placeholder="ចំនួនស្តុក" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                    <input type="number" id="pPrice" placeholder="តម្លៃលក់ ($)" class="w-full p-4 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 text-sm border-none shadow-sm font-bold text-blue-900">
+                    <input type="number" id="pStock" placeholder="ចំនួនស្តុក" class="w-full p-4 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 text-sm border-none shadow-sm">
                 </div>
 
-                <select id="pCategory" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-600">
-                    <option value="">ជ្រើសរើសប្រភេទ...</option>
-                    <option value="ស៊ីម៉ងត៍">ស៊ីម៉ងត៍</option>
-                    <option value="ដែក">ដែក</option>
-                    <option value="ឥដ្ឋ/ខ្សាច់/ថ្ម">ឥដ្ឋ/ខ្សាច់/ថ្ម</option>
+                <select id="pCategory" class="w-full p-4 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 text-sm border-none shadow-sm">
+                    <option value="">-- ជ្រើសរើសប្រភេទ --</option>
+                    <option value="ស៊ីម៉ងត៍">ស៊ីម៉ងត៍ (Cement)</option>
+                    <option value="ដែក">ដែក (Steel)</option>
+                    <option value="ឥដ្ឋ/ថ្ម/ខ្សាច់">ឥដ្ឋ/ថ្ម/ខ្សាច់</option>
+                    <option value="គ្រឿងអគ្គិសនី">គ្រឿងអគ្គិសនី</option>
                     <option value="ផ្សេងៗ">ផ្សេងៗ</option>
                 </select>
 
-                <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100 space-y-3">
-                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">ព័ត៌មានអ្នកផ្គត់ផ្គង់ (Supplier)</p>
-                    <input type="text" id="sName" placeholder="ឈ្មោះអ្នកផ្គត់ផ្គង់" class="w-full p-3 bg-white border border-gray-200 rounded-xl outline-none text-sm">
-                    <input type="tel" id="sPhone" placeholder="លេខទូរស័ព្ទ" class="w-full p-3 bg-white border border-gray-200 rounded-xl outline-none text-sm">
+                <div class="p-4 bg-gray-100 rounded-2xl space-y-3">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase">ព័ត៌មានអ្នកផ្គត់ផ្គង់</p>
+                    <select id="sSelect" onchange="updateSupplierInfo()" class="w-full p-3 bg-white rounded-xl outline-none text-sm border-none shadow-sm">
+                        <option value="">-- ជ្រើសរើសអ្នកផ្គត់ផ្គង់ --</option>
+                        <option value="Lion Brand Cement" data-phone="012 111 222">Lion Brand (ស៊ីម៉ងត៍ ក្បាលតោ)</option>
+                        <option value="Conch Cement" data-phone="098 333 444">Conch Cement (ស៊ីម៉ងត៍ កុងស៊ើ)</option>
+                        <option value="ផ្សេងៗ">ផ្សេងៗ (Manual)</option>
+                    </select>
+                    <input type="text" id="sName" placeholder="ឈ្មោះក្រុមហ៊ុន" class="hidden w-full p-3 bg-white rounded-xl outline-none text-sm border-none shadow-sm">
+                    <input type="tel" id="sPhone" placeholder="លេខទូរស័ព្ទ" class="w-full p-3 bg-white rounded-xl outline-none text-sm border-none shadow-sm font-mono">
                 </div>
 
                 <div class="flex space-x-2 pt-2">
@@ -49,12 +65,12 @@
             </div>
         </div>
 
-        <div class="mb-4">
-            <input type="text" id="searchInput" onkeyup="searchProduct()" placeholder="🔍 ស្វែងរកឈ្មោះផលិតផល ឬប្រភេទ..." class="w-full p-4 rounded-2xl border-none shadow-sm outline-none focus:ring-2 focus:ring-blue-500">
+        <div class="sticky top-4 z-10 mb-6">
+            <input type="text" id="searchInput" onkeyup="searchProduct()" placeholder="🔍 ស្វែងរកផលិតផល ឬប្រភេទ..." class="w-full p-4 rounded-2xl border-none shadow-lg outline-none focus:ring-2 focus:ring-blue-500">
         </div>
 
-        <div id="productList" class="space-y-3">
-            <p class="text-center text-gray-400 py-10 italic">កំពុងទាញទិន្នន័យ...</p>
+        <div id="productList" class="space-y-4">
+            <p class="text-center text-gray-400 py-10 italic text-sm">កំពុងទាញទិន្នន័យ...</p>
         </div>
     </div>
 
@@ -62,7 +78,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Firebase Config របស់អ្នក
         const firebaseConfig = {
             apiKey: "AIzaSyBezQ6VqgEpju9TpUzFB6xvgRkA71Z4YMk",
             authDomain: "depokh-3ed7c.firebaseapp.com",
@@ -78,7 +93,7 @@
 
         let allProducts = [];
 
-        // ១. បង្ហាញបញ្ជី (Read)
+        // ១. បង្ហាញបញ្ជី (Real-time Read)
         const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
         onSnapshot(q, (snapshot) => {
             allProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -88,31 +103,34 @@
         function renderProducts(data) {
             const listDiv = document.getElementById('productList');
             listDiv.innerHTML = "";
+            if(data.length === 0) {
+                listDiv.innerHTML = "<p class='text-center text-gray-400 py-10'>មិនមានទិន្នន័យ។</p>";
+                return;
+            }
             data.forEach(item => {
-                const stockColor = (item.stock < 10) ? "text-red-500" : "text-green-600";
+                const stockStatus = item.stock < 10 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600';
                 listDiv.innerHTML += `
-                    <div class="bg-white p-4 rounded-3xl shadow-sm border border-gray-50 flex flex-col space-y-3">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-3">
-                                <img src="${item.image}" class="w-14 h-14 object-cover rounded-2xl bg-gray-100">
-                                <div>
-                                    <h4 class="font-bold text-gray-800">${item.name}</h4>
-                                    <span class="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold">${item.category || 'ទូទៅ'}</span>
+                    <div class="bg-white p-4 rounded-[1.5rem] shadow-sm flex flex-col space-y-3 border border-gray-100">
+                        <div class="flex items-center space-x-4">
+                            <img src="${item.image}" class="w-16 h-16 object-cover rounded-2xl bg-gray-50 border border-gray-100">
+                            <div class="flex-1">
+                                <div class="flex justify-between items-start">
+                                    <h4 class="font-bold text-gray-800 text-sm">${item.name}</h4>
+                                    <span class="text-blue-900 font-black">$${item.price}</span>
+                                </div>
+                                <div class="flex space-x-2 mt-1">
+                                    <span class="text-[9px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full font-bold uppercase">${item.category || 'ទូទៅ'}</span>
+                                    <span class="text-[9px] ${stockStatus} px-2 py-0.5 rounded-full font-bold">ស្តុក៖ ${item.stock || 0}</span>
                                 </div>
                             </div>
-                            <div class="text-right">
-                                <p class="text-blue-900 font-bold">$${item.price}</p>
-                                <p class="text-[10px] ${stockColor} font-bold">ស្តុក៖ ${item.stock || 0}</p>
-                            </div>
                         </div>
-                        
                         <div class="flex items-center justify-between pt-2 border-t border-gray-50">
-                            <div class="text-[10px] text-gray-400 italic">
-                                Supplier: <span class="text-gray-600 font-medium">${item.supplierName || 'N/A'}</span> (${item.supplierPhone || 'N/A'})
+                            <div class="text-[9px] text-gray-400">
+                                <span class="font-bold text-gray-600">${item.supplierName || 'N/A'}</span> • ${item.supplierPhone || 'N/A'}
                             </div>
-                            <div class="flex space-x-1">
-                                <button onclick="selectToEdit('${item.id}')" class="p-2 text-blue-600 bg-blue-50 rounded-xl hover:bg-blue-100">✎</button>
-                                <button onclick="deleteData('${item.id}')" class="p-2 text-red-600 bg-red-50 rounded-xl hover:bg-red-100">✕</button>
+                            <div class="flex space-x-2">
+                                <button onclick="selectToEdit('${item.id}')" class="p-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition">✎</button>
+                                <button onclick="deleteData('${item.id}')" class="p-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition">✕</button>
                             </div>
                         </div>
                     </div>
@@ -191,6 +209,8 @@
             document.getElementById('pCategory').value = item.category || "";
             document.getElementById('sName').value = item.supplierName || "";
             document.getElementById('sPhone').value = item.supplierPhone || "";
+            document.getElementById('sSelect').value = (item.supplierName === "Lion Brand Cement" || item.supplierName === "Conch Cement") ? item.supplierName : "ផ្សេងៗ";
+            updateSupplierInfo();
             
             document.getElementById('formTitle').innerText = "កែប្រែផលិតផល";
             document.getElementById('btnSave').innerText = "ធ្វើបច្ចុប្បន្នភាព";
@@ -203,13 +223,37 @@
             if (confirm("តើអ្នកច្បាស់ទេថាចង់លុបទិន្នន័យនេះ?")) await deleteDoc(doc(db, "products", id));
         }
 
+        // ៦. មុខងារ Drop-down Supplier
+        window.updateSupplierInfo = function() {
+            const select = document.getElementById('sSelect');
+            const nameInput = document.getElementById('sName');
+            const phoneInput = document.getElementById('sPhone');
+            const selectedOption = select.options[select.selectedIndex];
+
+            if (select.value === "ផ្សេងៗ") {
+                nameInput.classList.remove('hidden');
+                nameInput.value = "";
+                phoneInput.value = "";
+            } else if (select.value !== "") {
+                nameInput.classList.add('hidden');
+                nameInput.value = select.value;
+                phoneInput.value = selectedOption.getAttribute('data-phone') || "";
+            } else {
+                nameInput.classList.add('hidden');
+                nameInput.value = "";
+                phoneInput.value = "";
+            }
+        }
+
         window.resetForm = function() {
             document.getElementById('editId').value = "";
             document.getElementById('pName').value = "";
             document.getElementById('pPrice').value = "";
             document.getElementById('pStock').value = "";
             document.getElementById('pCategory').value = "";
+            document.getElementById('sSelect').value = "";
             document.getElementById('sName').value = "";
+            document.getElementById('sName').classList.add('hidden');
             document.getElementById('sPhone').value = "";
             document.getElementById('fileInput').value = "";
             document.getElementById('formTitle').innerText = "បន្ថែមផលិតផលថ្មី";
