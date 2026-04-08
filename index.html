@@ -3,23 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DepoKh - ទំព័រដើម</title>
+    <title>DepoKh - Test Data</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;700&display=swap" rel="stylesheet">
-    <style>body { font-family: 'Kantumruy Pro', sans-serif; }</style>
 </head>
-<body class="bg-gray-50 pb-20">
+<body class="bg-gray-100 p-5">
 
-    <header class="bg-blue-900 text-white p-4 sticky top-0 z-50">
-        <h1 class="text-center font-bold text-xl uppercase italic">DepoKh</h1>
-    </header>
-
-    <main class="p-4">
-        <h3 class="font-bold mb-4 border-l-4 border-blue-900 pl-2 text-gray-800">ផលិតផលគ្រឿងសំណង់</h3>
-        
-        <div id="productGrid" class="grid grid-cols-2 gap-4">
-            </div>
-    </main>
+    <h2 class="text-xl font-bold mb-4">បញ្ជីផលិតផល (Real-time)</h2>
+    
+    <div id="productGrid" class="grid grid-cols-2 gap-4">
+        <p class="text-gray-500 italic">កំពុងរង់ចាំទិន្នន័យពី Firebase...</p>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
@@ -37,27 +30,35 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // ទាញទិន្នន័យ Real-time
+        // ទាញទិន្នន័យពី Collection ឈ្មោះ "products"
         const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
+        
         onSnapshot(q, (snapshot) => {
             const grid = document.getElementById('productGrid');
-            grid.innerHTML = "";
             
+            if (snapshot.empty) {
+                grid.innerHTML = "<p>រកមិនឃើញទិន្នន័យក្នុង Collection 'products' ទេ។</p>";
+                console.log("No data found in Firestore");
+                return;
+            }
+
+            grid.innerHTML = ""; 
             snapshot.forEach((doc) => {
                 const item = doc.data();
+                console.log("Item found:", item); // សម្រាប់ឆែកក្នុង Console
+
                 grid.innerHTML += `
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                        <img src="${item.image}" class="h-36 w-full object-cover">
-                        <div class="p-3">
-                            <h4 class="text-sm font-semibold text-gray-700">${item.name}</h4>
-                            <div class="flex justify-between items-center mt-2">
-                                <span class="text-blue-900 font-bold">$${item.price}</span>
-                                <button class="bg-blue-900 text-white w-7 h-7 rounded-full text-xs">+</button>
-                            </div>
-                        </div>
+                    <div class="bg-white p-3 rounded-xl shadow">
+                        <img src="${item.image}" class="h-32 w-full object-cover rounded-lg mb-2">
+                        <h4 class="font-bold text-sm">${item.name}</h4>
+                        <p class="text-blue-900">$${item.price}</p>
                     </div>
                 `;
             });
+        }, (error) => {
+            // ប្រសិនបើមានបញ្ហា Rules វានឹងលោត Error នៅទីនេះ
+            console.error("Firebase Error:", error.message);
+            alert("Error: " + error.message);
         });
     </script>
 </body>
