@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DepoKh Admin - Product Manager</title>
+    <title>DepoKh Admin Pro - Stock & Supplier</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;700&display=swap" rel="stylesheet">
     <style>body { font-family: 'Kantumruy Pro', sans-serif; }</style>
@@ -12,25 +12,45 @@
 
     <div class="max-w-md mx-auto">
         <div class="bg-white p-6 rounded-3xl shadow-lg mb-6 border border-gray-100">
-            <h2 id="formTitle" class="text-xl font-bold text-blue-900 mb-6 italic">បន្ថែមផលិតផលថ្មី</h2>
+            <h2 id="formTitle" class="text-xl font-bold text-blue-900 mb-6 italic text-center">បន្ថែមផលិតផលថ្មី</h2>
             
-            <input type="hidden" id="editId"> <div class="space-y-4">
-                <div class="bg-blue-50 p-4 rounded-2xl border-2 border-dashed border-blue-200 text-center">
+            <input type="hidden" id="editId">
+            
+            <div class="space-y-4">
+                <div class="bg-blue-50 p-3 rounded-2xl border-2 border-dashed border-blue-200 text-center">
                     <input type="file" id="fileInput" accept="image/*" class="w-full text-xs font-semibold">
                 </div>
 
-                <input type="text" id="pName" placeholder="ឈ្មោះផលិតផល" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500">
-                <input type="number" id="pPrice" placeholder="តម្លៃ ($)" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="text" id="pName" placeholder="ឈ្មោះផលិតផល" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="number" id="pPrice" placeholder="តម្លៃលក់ ($)" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                    <input type="number" id="pStock" placeholder="ចំនួនស្តុក" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 text-sm">
+                </div>
 
-                <div class="flex space-x-2">
-                    <button onclick="saveData()" id="btnSave" class="flex-1 bg-blue-900 text-white p-4 rounded-2xl font-bold active:scale-95 transition">រក្សាទុក</button>
-                    <button onclick="resetForm()" id="btnCancel" class="hidden bg-gray-400 text-white px-6 rounded-2xl font-bold italic">បោះបង់</button>
+                <select id="pCategory" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 text-sm text-gray-600">
+                    <option value="">ជ្រើសរើសប្រភេទ...</option>
+                    <option value="ស៊ីម៉ងត៍">ស៊ីម៉ងត៍</option>
+                    <option value="ដែក">ដែក</option>
+                    <option value="ឥដ្ឋ/ខ្សាច់/ថ្ម">ឥដ្ឋ/ខ្សាច់/ថ្ម</option>
+                    <option value="ផ្សេងៗ">ផ្សេងៗ</option>
+                </select>
+
+                <div class="p-4 bg-gray-50 rounded-2xl border border-gray-100 space-y-3">
+                    <p class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">ព័ត៌មានអ្នកផ្គត់ផ្គង់ (Supplier)</p>
+                    <input type="text" id="sName" placeholder="ឈ្មោះអ្នកផ្គត់ផ្គង់" class="w-full p-3 bg-white border border-gray-200 rounded-xl outline-none text-sm">
+                    <input type="tel" id="sPhone" placeholder="លេខទូរស័ព្ទ" class="w-full p-3 bg-white border border-gray-200 rounded-xl outline-none text-sm">
+                </div>
+
+                <div class="flex space-x-2 pt-2">
+                    <button onclick="saveData()" id="btnSave" class="flex-1 bg-blue-900 text-white p-4 rounded-2xl font-bold shadow-lg active:scale-95 transition">រក្សាទុក</button>
+                    <button onclick="resetForm()" id="btnCancel" class="hidden bg-gray-400 text-white px-6 rounded-2xl font-bold">បោះបង់</button>
                 </div>
             </div>
         </div>
 
         <div class="mb-4">
-            <input type="text" id="searchInput" onkeyup="searchProduct()" placeholder="🔍 ស្វែងរកឈ្មោះផលិតផល..." class="w-full p-4 rounded-2xl border-none shadow-sm outline-none focus:ring-2 focus:ring-blue-500">
+            <input type="text" id="searchInput" onkeyup="searchProduct()" placeholder="🔍 ស្វែងរកឈ្មោះផលិតផល ឬប្រភេទ..." class="w-full p-4 rounded-2xl border-none shadow-sm outline-none focus:ring-2 focus:ring-blue-500">
         </div>
 
         <div id="productList" class="space-y-3">
@@ -42,6 +62,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+        // Firebase Config របស់អ្នក
         const firebaseConfig = {
             apiKey: "AIzaSyBezQ6VqgEpju9TpUzFB6xvgRkA71Z4YMk",
             authDomain: "depokh-3ed7c.firebaseapp.com",
@@ -68,47 +89,66 @@
             const listDiv = document.getElementById('productList');
             listDiv.innerHTML = "";
             data.forEach(item => {
+                const stockColor = (item.stock < 10) ? "text-red-500" : "text-green-600";
                 listDiv.innerHTML += `
-                    <div class="bg-white p-3 rounded-2xl shadow-sm flex items-center justify-between border border-gray-50">
-                        <div class="flex items-center space-x-3">
-                            <img src="${item.image}" class="w-12 h-12 object-cover rounded-xl bg-gray-100">
-                            <div>
-                                <h4 class="font-bold text-gray-800 text-sm">${item.name}</h4>
-                                <p class="text-blue-900 font-bold text-xs">$${item.price}</p>
+                    <div class="bg-white p-4 rounded-3xl shadow-sm border border-gray-50 flex flex-col space-y-3">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <img src="${item.image}" class="w-14 h-14 object-cover rounded-2xl bg-gray-100">
+                                <div>
+                                    <h4 class="font-bold text-gray-800">${item.name}</h4>
+                                    <span class="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-bold">${item.category || 'ទូទៅ'}</span>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-blue-900 font-bold">$${item.price}</p>
+                                <p class="text-[10px] ${stockColor} font-bold">ស្តុក៖ ${item.stock || 0}</p>
                             </div>
                         </div>
-                        <div class="flex space-x-1">
-                            <button onclick="selectToEdit('${item.id}')" class="p-2 text-blue-600 bg-blue-50 rounded-full">✎</button>
-                            <button onclick="deleteData('${item.id}')" class="p-2 text-red-600 bg-red-50 rounded-full">✕</button>
+                        
+                        <div class="flex items-center justify-between pt-2 border-t border-gray-50">
+                            <div class="text-[10px] text-gray-400 italic">
+                                Supplier: <span class="text-gray-600 font-medium">${item.supplierName || 'N/A'}</span> (${item.supplierPhone || 'N/A'})
+                            </div>
+                            <div class="flex space-x-1">
+                                <button onclick="selectToEdit('${item.id}')" class="p-2 text-blue-600 bg-blue-50 rounded-xl hover:bg-blue-100">✎</button>
+                                <button onclick="deleteData('${item.id}')" class="p-2 text-red-600 bg-red-50 rounded-xl hover:bg-red-100">✕</button>
+                            </div>
                         </div>
                     </div>
                 `;
             });
         }
 
-        // ២. ស្វែងរក (Search)
+        // ២. ស្វែងរក
         window.searchProduct = function() {
             const term = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = allProducts.filter(p => p.name.toLowerCase().includes(term));
+            const filtered = allProducts.filter(p => 
+                p.name.toLowerCase().includes(term) || 
+                (p.category && p.category.toLowerCase().includes(term))
+            );
             renderProducts(filtered);
         }
 
-        // ៣. រក្សាទុក ឬ កែប្រែ (Add & Update)
+        // ៣. រក្សាទុក ឬ កែប្រែ
         window.saveData = async function() {
             const id = document.getElementById('editId').value;
             const name = document.getElementById('pName').value;
             const price = document.getElementById('pPrice').value;
+            const stock = document.getElementById('pStock').value;
+            const category = document.getElementById('pCategory').value;
+            const sName = document.getElementById('sName').value;
+            const sPhone = document.getElementById('sPhone').value;
             const file = document.getElementById('fileInput').files[0];
             const btn = document.getElementById('btnSave');
 
-            if (!name || !price) return alert("បំពេញព័ត៌មាន!");
+            if (!name || !price) return alert("សូមបំពេញឈ្មោះ និងតម្លៃ!");
 
             btn.disabled = true;
-            btn.innerText = "កំពុងដំណើរការ...";
+            btn.innerText = "កំពុងរក្សាទុក...";
 
             try {
                 let imageUrl = "";
-                // បើមានរើសរូបភាពថ្មី ទើបបង្ហោះទៅ ImgBB
                 if (file) {
                     let formData = new FormData();
                     formData.append("image", file);
@@ -117,15 +157,23 @@
                     imageUrl = resData.data.url;
                 }
 
+                const dataObj = {
+                    name,
+                    price: parseFloat(price),
+                    stock: parseInt(stock) || 0,
+                    category,
+                    supplierName: sName,
+                    supplierPhone: sPhone
+                };
+
                 if (id) {
-                    // Update
-                    const updateObj = { name, price: parseFloat(price) };
-                    if (imageUrl) updateObj.image = imageUrl;
-                    await updateDoc(doc(db, "products", id), updateObj);
+                    if (imageUrl) dataObj.image = imageUrl;
+                    await updateDoc(doc(db, "products", id), dataObj);
                 } else {
-                    // Add New
                     if (!file) throw new Error("សូមរើសរូបភាព!");
-                    await addDoc(collection(db, "products"), { name, price: parseFloat(price), image: imageUrl, createdAt: serverTimestamp() });
+                    dataObj.image = imageUrl;
+                    dataObj.createdAt = serverTimestamp();
+                    await addDoc(collection(db, "products"), dataObj);
                 }
                 resetForm();
             } catch (e) { alert(e.message); }
@@ -133,27 +181,36 @@
             btn.innerText = "រក្សាទុក";
         }
 
-        // ៤. ជ្រើសរើសដើម្បីកែ (Select & Edit)
+        // ៤. ជ្រើសរើសដើម្បីកែ
         window.selectToEdit = function(id) {
             const item = allProducts.find(p => p.id === id);
             document.getElementById('editId').value = item.id;
             document.getElementById('pName').value = item.name;
             document.getElementById('pPrice').value = item.price;
+            document.getElementById('pStock').value = item.stock || 0;
+            document.getElementById('pCategory').value = item.category || "";
+            document.getElementById('sName').value = item.supplierName || "";
+            document.getElementById('sPhone').value = item.supplierPhone || "";
+            
             document.getElementById('formTitle').innerText = "កែប្រែផលិតផល";
             document.getElementById('btnSave').innerText = "ធ្វើបច្ចុប្បន្នភាព";
             document.getElementById('btnCancel').classList.remove('hidden');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        // ៥. លុប (Delete)
+        // ៥. លុប
         window.deleteData = async function(id) {
-            if (confirm("ចង់លុបទិន្នន័យនេះ?")) await deleteDoc(doc(db, "products", id));
+            if (confirm("តើអ្នកច្បាស់ទេថាចង់លុបទិន្នន័យនេះ?")) await deleteDoc(doc(db, "products", id));
         }
 
         window.resetForm = function() {
             document.getElementById('editId').value = "";
             document.getElementById('pName').value = "";
             document.getElementById('pPrice').value = "";
+            document.getElementById('pStock').value = "";
+            document.getElementById('pCategory').value = "";
+            document.getElementById('sName').value = "";
+            document.getElementById('sPhone').value = "";
             document.getElementById('fileInput').value = "";
             document.getElementById('formTitle').innerText = "បន្ថែមផលិតផលថ្មី";
             document.getElementById('btnSave').innerText = "រក្សាទុក";
