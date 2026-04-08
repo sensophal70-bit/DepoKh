@@ -3,80 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DepoKh Admin Pro - Management System</title>
+    <title>Admin DepoKh - Fixed</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Kantumruy Pro', sans-serif; background-color: #f3f4f6; }
-        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
-    </style>
+    <style>body { font-family: 'Kantumruy Pro', sans-serif; }</style>
 </head>
-<body class="pb-20">
+<body class="bg-gray-100 p-4">
 
-    <div class="max-w-md mx-auto p-4">
-        <div class="flex items-center justify-between my-6">
-            <h1 class="text-2xl font-bold text-blue-900 italic">DepoKh Admin</h1>
-            <div class="bg-blue-900 text-white text-[10px] px-3 py-1 rounded-full uppercase font-bold tracking-tighter">Pro Version</div>
-        </div>
+    <div class="max-w-md mx-auto bg-white p-6 rounded-[2.5rem] shadow-xl">
+        <h1 class="text-xl font-bold text-blue-900 mb-6 text-center italic">Admin Panel</h1>
 
-        <div class="glass-card p-6 rounded-[2rem] shadow-xl border border-white mb-8">
-            <h2 id="formTitle" class="text-lg font-bold text-gray-800 mb-5">បន្ថែមផលិតផលថ្មី</h2>
+        <div class="space-y-4">
+            <input type="file" id="fileInput" accept="image/*" class="w-full text-xs">
+
+            <input type="text" id="pName" placeholder="ឈ្មោះផលិតផល" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none">
             
-            <input type="hidden" id="editId">
-            
-            <div class="space-y-4">
-                <div class="relative group bg-gray-50 border-2 border-dashed border-gray-200 rounded-2xl p-4 text-center hover:border-blue-400 transition">
-                    <input type="file" id="fileInput" accept="image/*" class="w-full text-xs font-medium cursor-pointer">
-                    <p class="text-[10px] text-gray-400 mt-1">ថតរូបផលិតផល ឬរើសពីបណ្ណាល័យ</p>
-                </div>
+            <div class="grid grid-cols-2 gap-3">
+                <input type="number" id="pPrice" placeholder="តម្លៃ ($)" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none">
+                <input type="number" id="pStock" placeholder="ចំនួនស្តុក" class="w-full p-4 bg-gray-50 border rounded-2xl outline-none">
+            </div>
 
-                <input type="text" id="pName" placeholder="ឈ្មោះផលិតផល" class="w-full p-4 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 text-sm border-none shadow-sm">
-                
-                <div class="grid grid-cols-2 gap-3">
-                    <input type="number" id="pPrice" placeholder="តម្លៃលក់ ($)" class="w-full p-4 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 text-sm border-none shadow-sm font-bold text-blue-900">
-                    <input type="number" id="pStock" placeholder="ចំនួនស្តុក" class="w-full p-4 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 text-sm border-none shadow-sm">
-                </div>
-
-                <select id="pCategory" class="w-full p-4 bg-gray-50 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 text-sm border-none shadow-sm">
-                    <option value="">-- ជ្រើសរើសប្រភេទ --</option>
-                    <option value="ស៊ីម៉ងត៍">ស៊ីម៉ងត៍ (Cement)</option>
-                    <option value="ដែក">ដែក (Steel)</option>
-                    <option value="ឥដ្ឋ/ថ្ម/ខ្សាច់">ឥដ្ឋ/ថ្ម/ខ្សាច់</option>
-                    <option value="គ្រឿងអគ្គិសនី">គ្រឿងអគ្គិសនី</option>
-                    <option value="ផ្សេងៗ">ផ្សេងៗ</option>
-                </select>
-
-                <div class="p-4 bg-gray-100 rounded-2xl space-y-3">
-                    <p class="text-[10px] font-bold text-gray-400 uppercase">ព័ត៌មានអ្នកផ្គត់ផ្គង់</p>
-                    <select id="sSelect" onchange="updateSupplierInfo()" class="w-full p-3 bg-white rounded-xl outline-none text-sm border-none shadow-sm">
-                        <option value="">-- ជ្រើសរើសអ្នកផ្គត់ផ្គង់ --</option>
-                        <option value="Lion Brand Cement" data-phone="012 111 222">Lion Brand (ស៊ីម៉ងត៍ ក្បាលតោ)</option>
-                        <option value="Conch Cement" data-phone="098 333 444">Conch Cement (ស៊ីម៉ងត៍ កុងស៊ើ)</option>
-                        <option value="ផ្សេងៗ">ផ្សេងៗ (Manual)</option>
+            <div>
+                <label class="text-[10px] font-bold text-gray-400 ml-2">ប្រភេទ</label>
+                <div class="flex space-x-2">
+                    <select id="pCategory" class="flex-1 p-4 bg-gray-50 border rounded-2xl text-sm">
+                        <option value="">-- រើសប្រភេទ --</option>
                     </select>
-                    <input type="text" id="sName" placeholder="ឈ្មោះក្រុមហ៊ុន" class="hidden w-full p-3 bg-white rounded-xl outline-none text-sm border-none shadow-sm">
-                    <input type="tel" id="sPhone" placeholder="លេខទូរស័ព្ទ" class="w-full p-3 bg-white rounded-xl outline-none text-sm border-none shadow-sm font-mono">
-                </div>
-
-                <div class="flex space-x-2 pt-2">
-                    <button onclick="saveData()" id="btnSave" class="flex-1 bg-blue-900 text-white p-4 rounded-2xl font-bold shadow-lg active:scale-95 transition">រក្សាទុក</button>
-                    <button onclick="resetForm()" id="btnCancel" class="hidden bg-gray-400 text-white px-6 rounded-2xl font-bold">បោះបង់</button>
+                    <button type="button" id="btnAddCat" class="bg-blue-900 text-white px-4 rounded-2xl font-bold">+</button>
                 </div>
             </div>
-        </div>
 
-        <div class="sticky top-4 z-10 mb-6">
-            <input type="text" id="searchInput" onkeyup="searchProduct()" placeholder="🔍 ស្វែងរកផលិតផល ឬប្រភេទ..." class="w-full p-4 rounded-2xl border-none shadow-lg outline-none focus:ring-2 focus:ring-blue-500">
-        </div>
+            <div class="p-4 bg-gray-50 rounded-3xl border border-gray-100 space-y-3">
+                <div class="flex justify-between items-center">
+                    <label class="text-[10px] font-bold text-gray-400">អ្នកផ្គត់ផ្គង់</label>
+                    <button type="button" id="btnAddSup" class="text-blue-900 text-[10px] font-bold">+ បន្ថែមថ្មី</button>
+                </div>
+                <select id="sSelect" class="w-full p-3 bg-white border rounded-xl text-sm">
+                    <option value="">-- រើសអ្នកផ្គត់ផ្គង់ --</option>
+                </select>
+                <input type="tel" id="sPhone" placeholder="លេខទូរស័ព្ទ" readonly class="w-full p-3 bg-gray-100 border rounded-xl text-xs font-mono italic">
+            </div>
 
-        <div id="productList" class="space-y-4">
-            <p class="text-center text-gray-400 py-10 italic text-sm">កំពុងទាញទិន្នន័យ...</p>
+            <button id="btnSave" class="w-full bg-blue-900 text-white p-5 rounded-3xl font-bold shadow-lg">រក្សាទុកផលិតផល</button>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBezQ6VqgEpju9TpUzFB6xvgRkA71Z4YMk",
@@ -91,175 +65,82 @@
         const db = getFirestore(app);
         const IMGBB_API_KEY = "34723d8c15e48e075329257c0e0478ff";
 
-        let allProducts = [];
-
-        // ១. បង្ហាញបញ្ជី (Real-time Read)
-        const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
-        onSnapshot(q, (snapshot) => {
-            allProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            renderProducts(allProducts);
+        // ១. ទាញ Category
+        onSnapshot(collection(db, "categories"), (snap) => {
+            const sel = document.getElementById('pCategory');
+            sel.innerHTML = '<option value="">-- រើសប្រភេទ --</option>';
+            snap.forEach(d => sel.innerHTML += `<option value="${d.data().name}">${d.data().name}</option>`);
         });
 
-        function renderProducts(data) {
-            const listDiv = document.getElementById('productList');
-            listDiv.innerHTML = "";
-            if(data.length === 0) {
-                listDiv.innerHTML = "<p class='text-center text-gray-400 py-10'>មិនមានទិន្នន័យ។</p>";
-                return;
+        // ២. ទាញ Supplier
+        onSnapshot(collection(db, "suppliers"), (snap) => {
+            const sel = document.getElementById('sSelect');
+            sel.innerHTML = '<option value="">-- រើសអ្នកផ្គត់ផ្គង់ --</option>';
+            snap.forEach(d => sel.innerHTML += `<option value="${d.data().name}" data-phone="${d.data().phone}">${d.data().name}</option>`);
+        });
+
+        // ៣. បន្ថែម Category (Click Event)
+        document.getElementById('btnAddCat').addEventListener('click', async () => {
+            const name = prompt("បញ្ចូលឈ្មោះប្រភេទថ្មី:");
+            if (name) {
+                try {
+                    await addDoc(collection(db, "categories"), { name });
+                    alert("បានបន្ថែមប្រភេទថ្មី!");
+                } catch (e) { alert("Error: " + e.message); }
             }
-            data.forEach(item => {
-                const stockStatus = item.stock < 10 ? 'bg-red-100 text-red-600' : 'bg-green-100 text-green-600';
-                listDiv.innerHTML += `
-                    <div class="bg-white p-4 rounded-[1.5rem] shadow-sm flex flex-col space-y-3 border border-gray-100">
-                        <div class="flex items-center space-x-4">
-                            <img src="${item.image}" class="w-16 h-16 object-cover rounded-2xl bg-gray-50 border border-gray-100">
-                            <div class="flex-1">
-                                <div class="flex justify-between items-start">
-                                    <h4 class="font-bold text-gray-800 text-sm">${item.name}</h4>
-                                    <span class="text-blue-900 font-black">$${item.price}</span>
-                                </div>
-                                <div class="flex space-x-2 mt-1">
-                                    <span class="text-[9px] bg-blue-50 text-blue-600 px-2 py-0.5 rounded-full font-bold uppercase">${item.category || 'ទូទៅ'}</span>
-                                    <span class="text-[9px] ${stockStatus} px-2 py-0.5 rounded-full font-bold">ស្តុក៖ ${item.stock || 0}</span>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="flex items-center justify-between pt-2 border-t border-gray-50">
-                            <div class="text-[9px] text-gray-400">
-                                <span class="font-bold text-gray-600">${item.supplierName || 'N/A'}</span> • ${item.supplierPhone || 'N/A'}
-                            </div>
-                            <div class="flex space-x-2">
-                                <button onclick="selectToEdit('${item.id}')" class="p-2 bg-blue-50 text-blue-600 rounded-xl hover:bg-blue-100 transition">✎</button>
-                                <button onclick="deleteData('${item.id}')" class="p-2 bg-red-50 text-red-600 rounded-xl hover:bg-red-100 transition">✕</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            });
-        }
+        });
 
-        // ២. ស្វែងរក
-        window.searchProduct = function() {
-            const term = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = allProducts.filter(p => 
-                p.name.toLowerCase().includes(term) || 
-                (p.category && p.category.toLowerCase().includes(term))
-            );
-            renderProducts(filtered);
-        }
+        // ៤. បន្ថែម Supplier (Click Event)
+        document.getElementById('btnAddSup').addEventListener('click', async () => {
+            const name = prompt("បញ្ចូលឈ្មោះក្រុមហ៊ុន:");
+            const phone = prompt("បញ្ចូលលេខទូរស័ព្ទ:");
+            if (name && phone) {
+                try {
+                    await addDoc(collection(db, "suppliers"), { name, phone });
+                    alert("បានបន្ថែមអ្នកផ្គត់ផ្គង់ថ្មី!");
+                } catch (e) { alert("Error: " + e.message); }
+            }
+        });
 
-        // ៣. រក្សាទុក ឬ កែប្រែ
-        window.saveData = async function() {
-            const id = document.getElementById('editId').value;
+        // ៥. Update Phone អូតូ
+        document.getElementById('sSelect').addEventListener('change', (e) => {
+            const opt = e.target.options[e.target.selectedIndex];
+            document.getElementById('sPhone').value = opt.getAttribute('data-phone') || "";
+        });
+
+        // ៦. រក្សាទុកផលិតផល
+        document.getElementById('btnSave').addEventListener('click', async () => {
+            const file = document.getElementById('fileInput').files[0];
             const name = document.getElementById('pName').value;
             const price = document.getElementById('pPrice').value;
-            const stock = document.getElementById('pStock').value;
-            const category = document.getElementById('pCategory').value;
-            const sName = document.getElementById('sName').value;
-            const sPhone = document.getElementById('sPhone').value;
-            const file = document.getElementById('fileInput').files[0];
             const btn = document.getElementById('btnSave');
 
-            if (!name || !price) return alert("សូមបំពេញឈ្មោះ និងតម្លៃ!");
+            if (!file || !name || !price) return alert("សូមបំពេញឱ្យគ្រប់!");
 
             btn.disabled = true;
             btn.innerText = "កំពុងរក្សាទុក...";
 
             try {
-                let imageUrl = "";
-                if (file) {
-                    let formData = new FormData();
-                    formData.append("image", file);
-                    const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: "POST", body: formData });
-                    const resData = await res.json();
-                    imageUrl = resData.data.url;
-                }
+                let fd = new FormData();
+                fd.append("image", file);
+                const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, { method: "POST", body: fd });
+                const img = await res.json();
 
-                const dataObj = {
+                await addDoc(collection(db, "products"), {
                     name,
                     price: parseFloat(price),
-                    stock: parseInt(stock) || 0,
-                    category,
-                    supplierName: sName,
-                    supplierPhone: sPhone
-                };
+                    stock: parseInt(document.getElementById('pStock').value) || 0,
+                    category: document.getElementById('pCategory').value,
+                    supplierName: document.getElementById('sSelect').value,
+                    supplierPhone: document.getElementById('sPhone').value,
+                    image: img.data.url,
+                    createdAt: serverTimestamp()
+                });
 
-                if (id) {
-                    if (imageUrl) dataObj.image = imageUrl;
-                    await updateDoc(doc(db, "products", id), dataObj);
-                } else {
-                    if (!file) throw new Error("សូមរើសរូបភាព!");
-                    dataObj.image = imageUrl;
-                    dataObj.createdAt = serverTimestamp();
-                    await addDoc(collection(db, "products"), dataObj);
-                }
-                resetForm();
-            } catch (e) { alert(e.message); }
-            btn.disabled = false;
-            btn.innerText = "រក្សាទុក";
-        }
-
-        // ៤. ជ្រើសរើសដើម្បីកែ
-        window.selectToEdit = function(id) {
-            const item = allProducts.find(p => p.id === id);
-            document.getElementById('editId').value = item.id;
-            document.getElementById('pName').value = item.name;
-            document.getElementById('pPrice').value = item.price;
-            document.getElementById('pStock').value = item.stock || 0;
-            document.getElementById('pCategory').value = item.category || "";
-            document.getElementById('sName').value = item.supplierName || "";
-            document.getElementById('sPhone').value = item.supplierPhone || "";
-            document.getElementById('sSelect').value = (item.supplierName === "Lion Brand Cement" || item.supplierName === "Conch Cement") ? item.supplierName : "ផ្សេងៗ";
-            updateSupplierInfo();
-            
-            document.getElementById('formTitle').innerText = "កែប្រែផលិតផល";
-            document.getElementById('btnSave').innerText = "ធ្វើបច្ចុប្បន្នភាព";
-            document.getElementById('btnCancel').classList.remove('hidden');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
-
-        // ៥. លុប
-        window.deleteData = async function(id) {
-            if (confirm("តើអ្នកច្បាស់ទេថាចង់លុបទិន្នន័យនេះ?")) await deleteDoc(doc(db, "products", id));
-        }
-
-        // ៦. មុខងារ Drop-down Supplier
-        window.updateSupplierInfo = function() {
-            const select = document.getElementById('sSelect');
-            const nameInput = document.getElementById('sName');
-            const phoneInput = document.getElementById('sPhone');
-            const selectedOption = select.options[select.selectedIndex];
-
-            if (select.value === "ផ្សេងៗ") {
-                nameInput.classList.remove('hidden');
-                nameInput.value = "";
-                phoneInput.value = "";
-            } else if (select.value !== "") {
-                nameInput.classList.add('hidden');
-                nameInput.value = select.value;
-                phoneInput.value = selectedOption.getAttribute('data-phone') || "";
-            } else {
-                nameInput.classList.add('hidden');
-                nameInput.value = "";
-                phoneInput.value = "";
-            }
-        }
-
-        window.resetForm = function() {
-            document.getElementById('editId').value = "";
-            document.getElementById('pName').value = "";
-            document.getElementById('pPrice').value = "";
-            document.getElementById('pStock').value = "";
-            document.getElementById('pCategory').value = "";
-            document.getElementById('sSelect').value = "";
-            document.getElementById('sName').value = "";
-            document.getElementById('sName').classList.add('hidden');
-            document.getElementById('sPhone').value = "";
-            document.getElementById('fileInput').value = "";
-            document.getElementById('formTitle').innerText = "បន្ថែមផលិតផលថ្មី";
-            document.getElementById('btnSave').innerText = "រក្សាទុក";
-            document.getElementById('btnCancel').classList.add('hidden');
-        }
+                alert("ជោគជ័យ!");
+                location.reload();
+            } catch (e) { alert(e.message); btn.disabled = false; }
+        });
     </script>
 </body>
 </html>
