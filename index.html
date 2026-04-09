@@ -3,95 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KIMRA POS - 3 COLUMN VIEW</title>
+    <title>KIMRA POS PRO</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-        body { font-family: 'Kantumruy Pro', sans-serif; background-color: #f8fafc; }
+        body { font-family: 'Kantumruy Pro', sans-serif; background-color: #f1f5f9; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
         .nav-active { color: #1e3a8a; font-weight: bold; border-top: 3px solid #1e3a8a; }
-        .category-chip.active { background-color: #1e3a8a; color: white; }
         
-        /* PDF Style - Fixed Columns */
-        #invoice-print-area { position: absolute; left: -9999px; width: 350px; background: white; padding: 25px; }
-        .col-desc { width: 55%; text-align: left; }
-        .col-qty  { width: 15%; text-align: center; }
-        .col-total { width: 30%; text-align: right; }
-        .inv-table { width: 100%; border-collapse: collapse; }
-        .inv-table td { border-bottom: 1px dashed #eee; padding: 8px 5px; font-size: 11px; }
+        /* PDF Invoice Styling */
+        #invoice-print-area { 
+            position: absolute; left: -9999px; width: 400px; background: white; padding: 40px;
+        }
+        .inv-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .inv-table th { border-bottom: 2px solid #000; padding: 10px 5px; font-size: 14px; text-align: left; }
+        .inv-table td { border-bottom: 1px solid #eee; padding: 12px 5px; font-size: 13px; }
+        .col-n { width: 50%; } .col-q { width: 20%; text-align: center; } .col-p { width: 30%; text-align: right; }
+        
+        /* Image Style */
+        .product-img { aspect-ratio: 1 / 1; object-fit: cover; }
     </style>
 </head>
-<body class="pb-24">
+<body class="pb-20">
 
-    <header class="bg-blue-900 text-white p-4 sticky top-0 z-50 flex justify-between items-center shadow-md">
-        <h1 class="text-lg font-bold italic">KIMRA POS</h1>
-        <button onclick="toggleCart()" class="relative bg-white/20 p-2 rounded-xl">
-            🛒 <span id="cartCount" class="absolute -top-1 -right-1 bg-yellow-500 text-blue-900 text-[10px] font-black px-1.5 rounded-full">0</span>
+    <header class="bg-blue-900 text-white p-4 sticky top-0 z-50 flex justify-between items-center shadow-lg">
+        <h1 class="text-xl font-bold tracking-tighter">KIMRA POS</h1>
+        <button onclick="toggleCart()" class="relative bg-white/20 p-2 rounded-xl active:scale-90 transition">
+            🛒 <span id="cartCount" class="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold px-1.5 rounded-full">0</span>
         </button>
     </header>
 
     <main class="p-3">
-        <div id="tab-home" class="tab-content active">
-            <input type="text" id="productSearch" onkeyup="searchProducts()" placeholder="ស្វែងរក..." class="w-full p-3 rounded-xl border-none shadow-sm mb-3 outline-none text-sm focus:ring-2 focus:ring-blue-500">
+        <div id="tab-home" class="tab-content active text-sm">
+            <input type="text" id="productSearch" onkeyup="searchProducts()" placeholder="ស្វែងរកទំនិញ..." class="w-full p-3 rounded-xl shadow-sm mb-3 outline-none border focus:border-blue-500">
             
-            <div id="categoryContainer" class="flex space-x-2 overflow-x-auto pb-3 no-scrollbar text-[11px]">
-                </div>
+            <div id="categoryContainer" class="flex space-x-2 overflow-x-auto pb-3 no-scrollbar text-[11px]"></div>
 
             <div id="productList" class="grid grid-cols-3 gap-2"></div>
         </div>
 
         <div id="tab-history" class="tab-content">
             <h3 class="font-bold text-gray-700 mb-4 border-l-4 border-yellow-500 pl-2">ប្រវត្តិការលក់</h3>
-            <div id="historyList" class="space-y-2 text-sm"></div>
+            <div id="historyList" class="space-y-2"></div>
         </div>
 
-        <div id="tab-setting" class="tab-content">
-            <h3 class="font-bold text-gray-700 mb-4 border-l-4 border-blue-900 pl-2">ការកំណត់</h3>
-            <div class="bg-white rounded-2xl p-4 shadow-sm space-y-4">
-                <div class="flex items-center justify-between border-b pb-2">
-                    <span>ឈ្មោះហាង</span>
-                    <span class="font-bold text-blue-900">KIMRA Construction</span>
-                </div>
-                <div class="flex items-center justify-between border-b pb-2">
-                    <span>អ្នកប្រើប្រាស់</span>
-                    <span class="text-gray-500">Admin</span>
-                </div>
-                <button onclick="alert('Coming soon...')" class="w-full bg-gray-100 py-3 rounded-xl text-sm font-bold text-gray-700">គ្រប់គ្រងផលិតផល</button>
-                <button onclick="location.reload()" class="w-full bg-red-50 py-3 rounded-xl text-sm font-bold text-red-600">ចាកចេញ</button>
-            </div>
+        <div id="tab-setting" class="tab-content p-4 bg-white rounded-3xl shadow-sm">
+            <h3 class="font-bold text-lg mb-4">ការកំណត់</h3>
+            <p class="text-gray-500 mb-2 font-bold">KIMRA Construction & Logistics</p>
+            <p class="text-sm text-gray-400 mb-6">Version 2.0.1 (Premium)</p>
+            <button onclick="location.reload()" class="w-full py-3 bg-red-50 text-red-600 rounded-xl font-bold">ចាកចេញពីប្រព័ន្ធ</button>
         </div>
     </main>
 
     <div id="cartDrawer" class="fixed inset-y-0 right-0 w-full max-w-sm bg-white shadow-2xl z-[100] transform translate-x-full transition-transform duration-300">
         <div class="p-6 h-full flex flex-col">
-            <div class="flex justify-between items-center border-b pb-4 mb-4">
-                <h2 class="text-lg font-bold text-blue-900">កន្ត្រកទំនិញ</h2>
-                <button onclick="toggleCart()" class="text-gray-300">✕</button>
-            </div>
+            <h2 class="text-xl font-bold text-blue-900 mb-6">កន្ត្រកទំនិញ</h2>
             <div id="cartItems" class="flex-1 overflow-y-auto space-y-4"></div>
             <div class="border-t pt-4">
-                <p id="cartTotal" class="text-2xl font-black text-blue-900 mb-4 text-right">$0.00</p>
-                <button onclick="checkout()" class="w-full bg-blue-900 text-white py-4 rounded-2xl font-bold">បញ្ជាក់ការលក់</button>
+                <div class="flex justify-between text-xl font-bold text-blue-900 mb-4">
+                    <span>សរុប:</span> <span id="cartTotal">$0.00</span>
+                </div>
+                <button onclick="checkout()" class="w-full bg-blue-900 text-white py-4 rounded-2xl font-bold shadow-lg">ទូទាត់ប្រាក់</button>
             </div>
         </div>
     </div>
 
     <div id="invoice-print-area">
-        <div style="text-align: center; border-bottom: 2px solid #1e3a8a; padding-bottom: 5px;">
-            <h2 style="margin: 0; color: #1e3a8a;">KIMRA</h2>
+        <div style="text-align: center; border-bottom: 4px solid #1e3a8a; padding-bottom: 15px;">
+            <h1 style="margin: 0; color: #1e3a8a; font-size: 28px;">KIMRA</h1>
+            <p style="font-size: 12px; margin: 0; color: #666;">Construction & Logistics Materials</p>
+        </div>
+        <div style="margin-top: 20px; font-size: 14px;">
+            <p><strong>អតិថិជន:</strong> <span id="pdf-cust"></span></p>
+            <p><strong>កាលបរិច្ឆេទ:</strong> <span id="pdf-date"></span></p>
         </div>
         <table class="inv-table">
-            <thead><tr style="font-size: 10px; border-bottom: 1px solid #333;"><th class="col-desc">មុខទំនិញ</th><th class="col-qty">ចំនួន</th><th class="col-total">សរុប</th></tr></thead>
+            <thead>
+                <tr>
+                    <th class="col-n">មុខទំនិញ</th>
+                    <th class="col-q">ចំនួន</th>
+                    <th class="col-p">សរុប</th>
+                </tr>
+            </thead>
             <tbody id="pdf-items"></tbody>
         </table>
-        <h3 id="pdf-total" style="text-align: right; color: #1e3a8a; margin-top: 10px;"></h3>
+        <div style="text-align: right; margin-top: 30px; border-top: 2px solid #000; padding-top: 10px;">
+            <p style="font-size: 16px; margin: 0;">ទឹកប្រាក់សរុប (Grand Total):</p>
+            <h1 id="pdf-total" style="font-size: 32px; margin: 0; color: #1e3a8a;"></h1>
+        </div>
     </div>
 
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around p-3 z-50 rounded-t-3xl shadow-lg">
-        <button onclick="switchTab('home')" id="btn-home" class="flex flex-col items-center nav-active text-gray-400">🏠<span class="text-[10px]">ដើម</span></button>
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around p-3 z-50 rounded-t-3xl shadow-2xl">
+        <button onclick="switchTab('home')" id="btn-home" class="flex flex-col items-center nav-active">🏠<span class="text-[10px]">ដើម</span></button>
         <button onclick="switchTab('history')" id="btn-history" class="flex flex-col items-center text-gray-400">📜<span class="text-[10px]">ប្រវត្តិ</span></button>
         <button onclick="switchTab('setting')" id="btn-setting" class="flex flex-col items-center text-gray-400">⚙️<span class="text-[10px]">កំណត់</span></button>
     </nav>
@@ -108,7 +114,7 @@
         onSnapshot(query(collection(db, "products"), orderBy("createdAt", "desc")), (snap) => {
             allProducts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
             renderCategories();
-            renderProducts();
+            renderProducts(allProducts);
         });
 
         onSnapshot(query(collection(db, "sales"), orderBy("soldAt", "desc")), (snap) => {
@@ -119,27 +125,23 @@
         function renderCategories() {
             const cats = ['All', ...new Set(allProducts.map(p => p.category).filter(Boolean))];
             document.getElementById('categoryContainer').innerHTML = cats.map(c => `
-                <button onclick="filterCategory('${c}')" class="category-chip ${currentCat === c ? 'active' : ''} px-3 py-1.5 bg-white rounded-full border shadow-sm whitespace-nowrap">
+                <button onclick="filterCategory('${c}')" class="px-4 py-2 bg-white rounded-full border shadow-sm ${currentCat === c ? 'bg-blue-900 text-white' : ''}">
                     ${c === 'All' ? 'ទាំងអស់' : c}
                 </button>
             `).join('');
         }
 
-        window.filterCategory = (cat) => { currentCat = cat; renderCategories(); renderProducts(); };
+        window.filterCategory = (c) => { currentCat = c; renderProducts(); renderCategories(); };
 
-        function renderProducts() {
-            let filtered = allProducts;
-            if (currentCat !== 'All') filtered = allProducts.filter(p => p.category === currentCat);
-            
-            document.getElementById('productList').innerHTML = filtered.map(item => `
-                <div class="bg-white rounded-2xl shadow-sm p-2 relative active:scale-95 transition flex flex-col justify-between h-40 border border-gray-50">
-                    <img src="${item.image}" class="w-full h-16 object-cover rounded-xl mb-1 bg-gray-50">
-                    <h4 class="text-[9px] font-bold text-gray-700 truncate line-clamp-2">${item.name}</h4>
-                    <div class="flex justify-between items-center mt-1">
-                        <p class="text-blue-900 font-black text-[10px]">$${item.price}</p>
-                        <button onclick="addToCart('${item.id}')" class="bg-blue-900 text-white w-6 h-6 rounded-full flex items-center justify-center shadow-md text-xs">
-                            +
-                        </button>
+        function renderProducts(data = allProducts) {
+            let filtered = currentCat === 'All' ? data : data.filter(p => p.category === currentCat);
+            document.getElementById('productList').innerHTML = filtered.map(p => `
+                <div class="bg-white rounded-2xl p-2 relative shadow-sm border border-gray-100 flex flex-col justify-between h-44">
+                    <img src="${p.image}" class="product-img w-full rounded-xl bg-gray-50">
+                    <h4 class="text-[10px] font-bold text-gray-700 truncate mt-1">${p.name}</h4>
+                    <div class="flex justify-between items-center">
+                        <span class="text-blue-900 font-black text-xs">$${p.price}</span>
+                        <button onclick="addToCart('${p.id}')" class="bg-blue-900 text-white w-7 h-7 rounded-full shadow-lg flex items-center justify-center font-bold text-lg">+</button>
                     </div>
                 </div>
             `).join('');
@@ -148,8 +150,7 @@
         window.addToCart = (id) => {
             const p = allProducts.find(i => i.id === id);
             const exist = cart.find(i => i.id === id);
-            if (exist) { if (exist.qty + 1 > p.stock) return alert("អស់ស្តុក!"); exist.qty++; }
-            else { if (p.stock <= 0) return alert("អស់ស្តុក!"); cart.push({ ...p, qty: 1 }); }
+            if (exist) { exist.qty++; } else { cart.push({ ...p, qty: 1 }); }
             updateCartUI();
         };
 
@@ -158,12 +159,12 @@
             let total = 0;
             document.getElementById('cartItems').innerHTML = cart.map((i, idx) => {
                 total += i.price * i.qty;
-                return `<div class="bg-gray-50 p-2 rounded-xl flex justify-between items-center">
-                    <p class="text-[10px] font-bold w-1/2 truncate">${i.name}</p>
-                    <div class="flex items-center space-x-2">
-                        <button onclick="changeQty(${idx}, -1)" class="w-5 h-5 bg-white border rounded">-</button>
-                        <span class="text-xs font-bold">${i.qty}</span>
-                        <button onclick="changeQty(${idx}, 1)" class="w-5 h-5 bg-white border rounded">+</button>
+                return `<div class="bg-gray-50 p-3 rounded-2xl flex justify-between items-center">
+                    <p class="text-xs font-bold w-1/2">${i.name}</p>
+                    <div class="flex items-center space-x-3">
+                        <button onclick="changeQty(${idx}, -1)" class="w-6 h-6 bg-white rounded border">-</button>
+                        <span class="font-bold">${i.qty}</span>
+                        <button onclick="changeQty(${idx}, 1)" class="w-6 h-6 bg-white rounded border">+</button>
                     </div>
                 </div>`;
             }).join('');
@@ -178,37 +179,44 @@
 
         window.renderHistory = () => {
             document.getElementById('historyList').innerHTML = window.allSales.map(d => `
-                <div class="bg-white p-3 rounded-xl shadow-sm flex justify-between items-center border-l-4 border-blue-900">
-                    <div class="w-2/3"><p class="font-bold truncate">${d.name} (x${d.qty})</p></div>
-                    <button onclick="generatePDF('${d.id}')" class="text-[10px] bg-blue-50 text-blue-600 px-3 py-1 rounded-full font-bold uppercase">PDF</button>
+                <div class="bg-white p-4 rounded-2xl shadow-sm flex justify-between items-center">
+                    <div class="w-2/3"><p class="font-bold text-sm truncate">${d.name} (x${d.qty})</p>
+                    <p class="text-[10px] text-gray-400 font-bold">${d.customer}</p></div>
+                    <button onclick="generatePDF('${d.id}')" class="bg-blue-50 text-blue-600 px-4 py-2 rounded-full text-[10px] font-black">PRINT</button>
                 </div>`).join('');
         };
 
         window.generatePDF = async (id) => {
-            const sale = window.allSales.find(s => s.id === id);
-            document.getElementById('pdf-total').innerText = '$' + sale.totalSale.toFixed(2);
-            document.getElementById('pdf-items').innerHTML = `<tr><td class="col-desc">${sale.name}</td><td class="col-qty">${sale.qty}</td><td class="col-total">$${sale.totalSale.toFixed(2)}</td></tr>`;
-            const canvas = await html2canvas(document.getElementById('invoice-print-area'), { scale: 4 });
-            const pdf = new jspdf.jsPDF({ unit: 'px', format: [canvas.width/4, canvas.height/4] });
-            pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, canvas.width/4, canvas.height/4);
-            pdf.save(`Inv_${sale.id.slice(0,5)}.pdf`);
+            const s = window.allSales.find(x => x.id === id);
+            document.getElementById('pdf-cust').innerText = s.customer;
+            document.getElementById('pdf-date').innerText = s.soldAt?.toDate().toLocaleString('km-KH');
+            document.getElementById('pdf-total').innerText = '$' + s.totalSale.toFixed(2);
+            document.getElementById('pdf-items').innerHTML = `<tr><td class="col-n"><b>${s.name}</b></td><td class="col-q">${s.qty}</td><td class="col-p"><b>$${s.totalSale.toFixed(2)}</b></td></tr>`;
+            
+            const area = document.getElementById('invoice-print-area');
+            const canvas = await html2canvas(area, { scale: 3, useCORS: true });
+            const imgData = canvas.toDataURL('image/png');
+            const pdf = new jspdf.jsPDF({ unit: 'px', format: [canvas.width/3, canvas.height/3] });
+            pdf.addImage(imgData, 'PNG', 0, 0, canvas.width/3, canvas.height/3);
+            pdf.save(`Invoice_${s.customer}.pdf`);
         };
 
         window.checkout = async () => {
             if (!cart.length) return;
-            const customer = prompt("ឈ្មោះអតិថិជន:", "ភ្ញៀវ") || "ភ្ញៀវ";
-            for (let item of cart) {
-                await addDoc(collection(db, "sales"), { name: item.name, qty: item.qty, customer, totalSale: item.price * item.qty, soldAt: serverTimestamp() });
-                await updateDoc(doc(db, "products", item.id), { stock: item.stock - item.qty });
+            const customer = prompt("ឈ្មោះអតិថិជន:") || "ភ្ញៀវ";
+            for (let i of cart) {
+                await addDoc(collection(db, "sales"), { name: i.name, qty: i.qty, customer, totalSale: i.price * i.qty, soldAt: serverTimestamp() });
+                await updateDoc(doc(db, "products", i.id), { stock: i.stock - i.qty });
             }
-            alert("រួចរាល់!"); cart = []; updateCartUI(); toggleCart();
+            alert("លក់រួចរាល់!"); cart = []; updateCartUI(); toggleCart();
         };
 
-        window.switchTab = (tab) => {
-            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-            document.querySelectorAll('nav button').forEach(b => b.classList.remove('nav-active', 'text-gray-400'));
-            document.getElementById('tab-' + tab).classList.add('active');
-            document.getElementById('btn-' + tab).classList.add('nav-active');
+        window.switchTab = (t) => {
+            document.querySelectorAll('.tab-content').forEach(x => x.classList.remove('active'));
+            document.querySelectorAll('nav button').forEach(b => b.classList.add('text-gray-400'));
+            document.getElementById('tab-' + t).classList.add('active');
+            document.getElementById('btn-' + t).classList.remove('text-gray-400');
+            document.getElementById('btn-' + t).classList.add('nav-active');
         };
 
         window.toggleCart = () => document.getElementById('cartDrawer').classList.toggle('translate-x-full');
