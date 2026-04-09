@@ -1,60 +1,239 @@
-<style>
-    /* រចនាបថវិក្កយបត្រឱ្យស្អាតសម្រាប់ PDF */
-    #invoice-print-area { 
-        position: absolute; 
-        left: -9999px; 
-        width: 350px; 
-        background: white; 
-        padding: 30px; 
-        font-family: 'Kantumruy Pro', sans-serif;
-    }
-    .inv-header { text-align: center; border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; margin-bottom: 15px; }
-    .inv-logo { font-size: 24px; font-weight: bold; color: #1e3a8a; font-style: italic; }
-    .inv-info { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 15px; color: #333; }
-    .inv-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
-    .inv-table th { background: #1e3a8a; color: white; font-size: 11px; padding: 8px; text-align: left; }
-    .inv-table td { padding: 8px; font-size: 11px; border-bottom: 1px solid #eee; }
-    .inv-total { text-align: right; font-size: 16px; font-weight: bold; color: #1e3a8a; }
-    .inv-footer { text-align: center; font-size: 10px; color: #888; margin-top: 20px; border-top: 1px dashed #ddd; padding-top: 10px; }
-</style>
+<!DOCTYPE html>
+<html lang="km">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KIMRA POS - PROFESSIONAL</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+        body { font-family: 'Kantumruy Pro', sans-serif; background-color: #f1f5f9; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .nav-active { color: #1e3a8a; font-weight: bold; border-top: 3px solid #1e3a8a; }
+        
+        /* រចនាបថវិក្កយបត្រ PDF ឱ្យស្អាត */
+        #invoice-print-area { 
+            position: absolute; left: -9999px; width: 350px; background: white; padding: 25px;
+            border: 1px solid #eee;
+        }
+        .inv-header { text-align: center; border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; margin-bottom: 15px; }
+        .inv-logo { font-size: 22px; font-weight: bold; color: #1e3a8a; letter-spacing: -1px; }
+        .inv-table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 11px; }
+        .inv-table th { background: #1e3a8a; color: white; padding: 8px; text-align: left; }
+        .inv-table td { padding: 8px; border-bottom: 1px solid #eee; }
+        .inv-total { text-align: right; font-size: 16px; font-weight: bold; color: #1e3a8a; margin-top: 10px; }
+    </style>
+</head>
+<body class="pb-24">
 
-<div id="invoice-print-area">
-    <div class="inv-header">
-        <div class="inv-logo">KIMRA</div>
-        <div style="font-size: 10px; color: #666;">Construction & Logistics</div>
-        <div style="font-size: 12px; font-weight: bold; margin-top: 5px; color: #1e3a8a;">វិក្កយបត្រទូទាត់ប្រាក់ / INVOICE</div>
+    <header class="bg-blue-900 text-white p-4 sticky top-0 z-50 flex justify-between items-center shadow-lg">
+        <h1 class="text-xl font-bold italic tracking-tighter">KIMRA POS</h1>
+        <button onclick="toggleCart()" class="relative bg-white/20 p-2 rounded-xl active:scale-90 transition">
+            🛒 <span id="cartCount" class="absolute -top-1 -right-1 bg-yellow-500 text-blue-900 text-[10px] font-black px-1.5 rounded-full">0</span>
+        </button>
+    </header>
+
+    <div id="tab-home" class="tab-content active p-4">
+        <input type="text" id="productSearch" onkeyup="searchProducts()" placeholder="ស្វែងរកទំនិញ..." class="w-full p-4 rounded-2xl border-none shadow-sm outline-none mb-4 text-sm">
+        <div id="productList" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
     </div>
 
-    <div class="inv-info">
-        <div>
-            <p><strong>អតិថិជន:</strong> <span id="pdf-cust-name"></span></p>
-            <p><strong>លេខទូរស័ព្ទ:</strong> <span id="pdf-cust-phone">---</span></p>
+    <div id="tab-history" class="tab-content p-4">
+        <h3 class="font-bold text-gray-700 mb-4 border-l-4 border-yellow-500 pl-2">ប្រវត្តិការលក់</h3>
+        <div id="historyList" class="space-y-3"></div>
+    </div>
+
+    <div id="tab-admin" class="tab-content p-4">
+        <h3 class="font-bold text-gray-700 mb-4 border-l-4 border-blue-900 pl-2">បញ្ជីអតិថិជន</h3>
+        <div id="customerList" class="grid grid-cols-1 gap-3"></div>
+    </div>
+
+    <div id="cartDrawer" class="fixed inset-y-0 right-0 w-full max-w-sm bg-white shadow-2xl z-[100] transform translate-x-full transition-transform duration-300">
+        <div class="p-6 h-full flex flex-col">
+            <h2 class="text-lg font-bold text-blue-900 border-b pb-4 mb-4">កន្ត្រកទំនិញ</h2>
+            <div id="cartItems" class="flex-1 overflow-y-auto space-y-4 no-scrollbar"></div>
+            <div class="border-t pt-4 mt-4">
+                <div class="flex justify-between mb-4 font-bold"><span class="text-gray-400">សរុប:</span><span id="cartTotal" class="text-2xl text-blue-900">$0.00</span></div>
+                <button onclick="checkout()" class="w-full bg-blue-900 text-white py-4 rounded-2xl font-bold active:scale-95 transition">បញ្ជាក់ការលក់</button>
+            </div>
         </div>
-        <div style="text-align: right;">
-            <p><strong>កាលបរិច្ឆេទ:</strong></p>
-            <p id="pdf-date"></p>
+    </div>
+
+    <div id="invoice-print-area">
+        <div class="inv-header">
+            <div class="inv-logo">KIMRA</div>
+            <div style="font-size: 11px; font-weight: bold; color: #1e3a8a; margin-top: 5px;">វិក្កយបត្រ / INVOICE</div>
         </div>
+        <div style="display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 10px;">
+            <div><p>អតិថិជន: <span id="pdf-cust-name" class="font-bold"></span></p></div>
+            <div style="text-align: right;"><p id="pdf-date"></p></div>
+        </div>
+        <table class="inv-table">
+            <thead><tr><th>ទំនិញ</th><th style="text-align: center;">ចំនួន</th><th style="text-align: right;">សរុប</th></tr></thead>
+            <tbody id="pdf-items"></tbody>
+        </table>
+        <div class="inv-total">សរុប: <span id="pdf-total"></span></div>
+        <div style="text-align: center; font-size: 9px; color: #888; margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 10px;">សូមអរគុណ! សូមអញ្ជើញមកម្តងទៀត។</div>
     </div>
 
-    <table class="inv-table">
-        <thead>
-            <tr>
-                <th>បរិយាយទំនិញ</th>
-                <th style="text-align: center;">ចំនួន</th>
-                <th style="text-align: right;">តម្លៃសរុប</th>
-            </tr>
-        </thead>
-        <tbody id="pdf-items">
-            </tbody>
-    </table>
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around p-3 z-50 rounded-t-3xl shadow-2xl">
+        <button onclick="switchTab('home')" id="btn-home" class="flex flex-col items-center p-2 nav-active">🏠<span class="text-[10px]">ដើម</span></button>
+        <button onclick="switchTab('history')" id="btn-history" class="flex flex-col items-center p-2 text-gray-400">📜<span class="text-[10px]">ប្រវត្តិ</span></button>
+        <button onclick="switchTab('admin')" id="btn-admin" class="flex flex-col items-center p-2 text-gray-400">👤<span class="text-[10px]">អតិថិជន</span></button>
+    </nav>
 
-    <div class="inv-total">
-        <span style="font-size: 12px; color: #666; font-weight: normal;">សរុបរួម: </span>
-        <span id="pdf-total"></span>
-    </div>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, updateDoc, doc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-    <div class="inv-footer">
-        <p>សូមអរគុណចំពោះការគាំទ្រ!</p>
-        <p style="margin-top: 5px;">ទំនិញទិញហើយមិនអាចប្តូរវិញបានទេ</p>
-    </div>
-</div>
+        const firebaseConfig = { apiKey: "AIzaSyBezQ6VqgEpju9TpUzFB6xvgRkA71Z4YMk", authDomain: "depokh-3ed7c.firebaseapp.com", projectId: "depokh-3ed7c", storageBucket: "depokh-3ed7c.firebasestorage.app", messagingSenderId: "53266184310", appId: "1:53266184310:web:c15761eb1de22c68c00757" };
+        const db = getFirestore(initializeApp(firebaseConfig));
+
+        let allProducts = [], cart = [];
+
+        window.switchTab = (tab) => {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('nav button').forEach(b => b.classList.remove('nav-active', 'text-gray-400'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            document.getElementById('btn-' + tab).classList.add('nav-active');
+        };
+
+        // Real-time Data
+        onSnapshot(query(collection(db, "products"), orderBy("createdAt", "desc")), (snap) => {
+            allProducts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            renderProducts(allProducts);
+        });
+
+        onSnapshot(query(collection(db, "sales"), orderBy("soldAt", "desc")), (snap) => {
+            const sales = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            renderHistory(sales);
+            renderCustomers(sales);
+            window.allSales = sales;
+        });
+
+        function renderProducts(data) {
+            document.getElementById('productList').innerHTML = data.map(item => `
+                <div class="bg-white rounded-3xl shadow-sm p-3 border border-white active:scale-95 transition" onclick="addToCart('${item.id}')">
+                    <img src="${item.image}" class="w-full h-24 object-cover rounded-2xl mb-2">
+                    <h4 class="text-[10px] font-bold text-gray-800 truncate">${item.name}</h4>
+                    <p class="text-blue-900 font-black text-xs mt-1">$${item.price}</p>
+                </div>
+            `).join('');
+        }
+
+        window.searchProducts = () => {
+            const term = document.getElementById('productSearch').value.toLowerCase();
+            renderProducts(allProducts.filter(p => p.name.toLowerCase().includes(term)));
+        };
+
+        window.toggleCart = () => document.getElementById('cartDrawer').classList.toggle('translate-x-full');
+
+        window.addToCart = (id) => {
+            const p = allProducts.find(i => i.id === id);
+            const exist = cart.find(i => i.id === id);
+            if (exist) {
+                if (exist.qty + 1 > p.stock) return alert("អស់ស្តុក!");
+                exist.qty++;
+            } else {
+                if (p.stock <= 0) return alert("អស់ស្តុក!");
+                cart.push({ ...p, qty: 1 });
+            }
+            updateCartUI();
+        };
+
+        window.updateCartUI = () => {
+            document.getElementById('cartCount').innerText = cart.reduce((s, i) => s + i.qty, 0);
+            let total = 0;
+            document.getElementById('cartItems').innerHTML = cart.map((i, idx) => {
+                total += i.price * i.qty;
+                return `
+                <div class="bg-gray-50 p-3 rounded-2xl flex items-center justify-between">
+                    <div class="flex items-center space-x-2">
+                        <img src="${i.image}" class="w-10 h-10 object-cover rounded-lg">
+                        <div><p class="text-[9px] font-bold">${i.name}</p><p class="text-[9px] text-blue-900">$${i.price}</p></div>
+                    </div>
+                    <div class="flex items-center space-x-1">
+                        <button onclick="changeQty(${idx}, -1)" class="w-6 h-6 bg-white border rounded shadow-sm">-</button>
+                        <input type="number" value="${i.qty}" onchange="manualQty(${idx}, this.value)" 
+                               onkeypress="return (event.charCode >= 48 && event.charCode <= 57)"
+                               class="w-8 text-center text-[10px] font-bold bg-transparent outline-none">
+                        <button onclick="changeQty(${idx}, 1)" class="w-6 h-6 bg-white border rounded shadow-sm">+</button>
+                        <button onclick="deleteItem(${idx})" class="ml-2 text-red-400">🗑️</button>
+                    </div>
+                </div>`;
+            }).join('');
+            document.getElementById('cartTotal').innerText = `$${total.toFixed(2)}`;
+        };
+
+        window.changeQty = (idx, amt) => {
+            cart[idx].qty += amt;
+            if (cart[idx].qty <= 0) cart.splice(idx, 1);
+            else if (cart[idx].qty > cart[idx].stock) { alert("លើសស្តុក!"); cart[idx].qty = cart[idx].stock; }
+            updateCartUI();
+        };
+
+        window.manualQty = (idx, val) => {
+            let v = parseInt(val);
+            if (isNaN(v) || v <= 0) cart.splice(idx, 1);
+            else if (v > cart[idx].stock) { alert("លើសស្តុក!"); cart[idx].qty = cart[idx].stock; }
+            else cart[idx].qty = v;
+            updateCartUI();
+        };
+
+        window.deleteItem = (idx) => { cart.splice(idx, 1); updateCartUI(); };
+
+        function renderHistory(data) {
+            document.getElementById('historyList').innerHTML = data.map(d => `
+                <div class="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-blue-900 flex justify-between items-center">
+                    <div>
+                        <p class="text-[11px] font-bold text-gray-800">${d.name} (x${d.qty})</p>
+                        <p class="text-[9px] text-gray-400 italic">${d.soldAt?.toDate().toLocaleString('km-KH')}</p>
+                        <p class="text-[9px] text-blue-600 font-bold">👤 ${d.customer}</p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-black text-blue-900 mb-1">$${d.totalSale.toFixed(2)}</p>
+                        <button onclick="generatePDF('${d.id}')" class="text-[9px] bg-blue-50 text-blue-600 px-3 py-1 rounded-full font-bold">PDF INVOICE</button>
+                    </div>
+                </div>`).join('');
+        }
+
+        function renderCustomers(data) {
+            const names = [...new Set(data.map(d => d.customer))];
+            document.getElementById('customerList').innerHTML = names.map(n => `
+                <div class="bg-white p-4 rounded-2xl border flex items-center space-x-3 shadow-sm">
+                    <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center font-bold text-blue-900">${n.charAt(0)}</div>
+                    <p class="font-bold text-gray-700 text-sm">${n}</p>
+                </div>`).join('');
+        }
+
+        window.generatePDF = async (id) => {
+            const sale = window.allSales.find(s => s.id === id);
+            if(!sale) return;
+            document.getElementById('pdf-cust-name').innerText = sale.customer;
+            document.getElementById('pdf-date').innerText = sale.soldAt?.toDate().toLocaleString('km-KH');
+            document.getElementById('pdf-total').innerText = '$' + sale.totalSale.toFixed(2);
+            document.getElementById('pdf-items').innerHTML = `<tr><td>${sale.name}</td><td style="text-align: center;">${sale.qty}</td><td style="text-align: right;">$${sale.totalSale.toFixed(2)}</td></tr>`;
+            
+            const area = document.getElementById('invoice-print-area');
+            const canvas = await html2canvas(area, { scale: 3 });
+            const img = canvas.toDataURL('image/png');
+            const pdf = new jspdf.jsPDF({ unit: 'px', format: [canvas.width/3, canvas.height/3] });
+            pdf.addImage(img, 'PNG', 0, 0, canvas.width/3, canvas.height/3);
+            pdf.save(`Inv_${sale.customer}.pdf`);
+        };
+
+        window.checkout = async () => {
+            if (!cart.length) return;
+            const customer = prompt("ឈ្មោះអតិថិជន:", "ភ្ញៀវទូទៅ") || "ភ្ញៀវទូទៅ";
+            for (let item of cart) {
+                await addDoc(collection(db, "sales"), { productId: item.id, name: item.name, qty: item.qty, customer, totalSale: item.price * item.qty, soldAt: serverTimestamp() });
+                await updateDoc(doc(db, "products", item.id), { stock: item.stock - item.qty });
+            }
+            alert("លក់ជោគជ័យ!"); cart = []; updateCartUI(); toggleCart();
+        };
+    </script>
+</body>
+</html>
