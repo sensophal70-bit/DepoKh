@@ -3,86 +3,245 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DepoKh - POS System</title>
+    <title>KIMRA - Integrated POS System</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@400;700&display=swap" rel="stylesheet">
-    <style>body { font-family: 'Kantumruy Pro', sans-serif; background-color: #f1f5f9; }</style>
+    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Kantumruy Pro', sans-serif; background-color: #f1f5f9; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        .nav-active { color: #1e3a8a; font-weight: bold; border-top: 3px solid #1e3a8a; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+    </style>
 </head>
-<body class="p-4 pb-20">
+<body class="pb-28">
 
-    <div class="max-w-md mx-auto">
-        <h1 class="text-2xl font-black text-blue-900 mb-6 italic text-center">DepoKh Sales</h1>
+    <header class="bg-blue-900 text-white p-4 sticky top-0 z-50 shadow-lg">
+        <div class="flex justify-between items-center max-w-4xl mx-auto">
+            <h1 id="pageTitle" class="text-xl font-bold italic tracking-tighter">KIMRA LOGISTICS</h1>
+            <div class="flex items-center space-x-4">
+                <button onclick="toggleCart()" class="relative bg-white/10 p-2 rounded-xl active:scale-90 transition">
+                    🛒 <span id="cartCount" class="absolute -top-1 -right-1 bg-yellow-500 text-blue-900 text-[10px] font-black px-1.5 rounded-full shadow-sm">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
 
-        <input type="text" id="searchInput" placeholder="🔍 ស្វែងរកទំនិញ..." class="w-full p-4 mb-6 rounded-3xl border-none shadow-lg outline-none focus:ring-2 focus:ring-blue-500">
+    <div class="max-w-4xl mx-auto">
+        <div id="tab-home" class="tab-content active p-4 animate-in fade-in duration-300">
+            <div class="relative mb-6">
+                <input type="text" id="productSearch" placeholder="ស្វែងរកផលិតផល ឬម៉ាក..." class="w-full p-4 rounded-2xl border-none shadow-sm focus:ring-2 focus:ring-blue-500 outline-none text-sm">
+                <span class="absolute right-4 top-4 opacity-30">🔍</span>
+            </div>
+            <div id="productList" class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                </div>
+        </div>
 
-        <div id="productList" class="grid grid-cols-1 gap-4">
-            <p class="text-center text-gray-400 py-10">កំពុងទាញទិន្នន័យ...</p>
+        <div id="tab-history" class="tab-content p-4">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-gray-800 border-l-4 border-yellow-500 pl-2">ប្រវត្តិវិក្កយបត្រ</h3>
+                <span id="historyStats" class="text-[10px] bg-white px-3 py-1 rounded-full shadow-sm text-blue-900 font-bold"></span>
+            </div>
+            <div id="historyList" class="space-y-3"></div>
+        </div>
+
+        <div id="tab-admin" class="tab-content p-4">
+            <div class="bg-white p-4 rounded-3xl shadow-sm mb-6 border border-blue-50">
+                <h3 class="font-bold text-blue-900 text-sm mb-1">សរុបតុល្យការអតិថិជន</h3>
+                <p class="text-[10px] text-gray-400 uppercase">បញ្ជីឈ្មោះ និងចំនួនទឹកប្រាក់ទិញសរុប</p>
+            </div>
+            <div class="bg-white rounded-[2rem] shadow-sm overflow-hidden border border-gray-100">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-gray-50 text-gray-400 font-bold uppercase">
+                        <tr><th class="p-4">ឈ្មោះអតិថិជន</th><th class="p-4 text-right">សរុបការទិញ</th></tr>
+                    </thead>
+                    <tbody id="customerTable" class="divide-y divide-gray-50"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
-    <div class="fixed bottom-0 left-0 right-0 bg-white border-t p-4 flex justify-around shadow-2xl rounded-t-[2rem]">
-        <a href="index.html" class="text-blue-900 font-bold">🏠 លក់ទំនិញ</a>
-        <a href="admin.html" class="text-gray-400 font-bold">⚙️ គ្រប់គ្រង</a>
+    <div id="cartDrawer" class="fixed inset-y-0 right-0 w-full max-w-md bg-white shadow-2xl z-[100] transform translate-x-full transition-transform duration-300 ease-in-out">
+        <div class="p-6 h-full flex flex-col">
+            <div class="flex justify-between items-center mb-6 border-b pb-4">
+                <h2 class="text-xl font-bold text-blue-900 italic">កន្ត្រកទំនិញ</h2>
+                <button onclick="toggleCart()" class="text-2xl text-gray-300 hover:text-red-500">✕</button>
+            </div>
+            <div id="cartItems" class="flex-1 overflow-y-auto space-y-4 no-scrollbar"></div>
+            <div class="border-t pt-4 mt-4">
+                <div class="flex justify-between mb-4 font-bold text-gray-600 italic"><span>សរុបទឹកប្រាក់:</span><span id="cartTotal" class="text-2xl text-blue-900">$0.00</span></div>
+                <button onclick="checkout()" class="w-full bg-blue-900 text-white py-4 rounded-2xl font-bold shadow-xl active:scale-95 transition">បញ្ជាក់ការលក់ & កាត់ស្តុក</button>
+            </div>
+        </div>
     </div>
+
+    <nav class="fixed bottom-0 left-0 right-0 bg-white/80 backdrop-blur-md border-t flex justify-around p-3 z-50 rounded-t-[2.5rem] shadow-2xl">
+        <button onclick="switchTab('home')" id="btn-home" class="flex flex-col items-center p-2 nav-active transition-all">
+            <span class="text-2xl">🏠</span><span class="text-[10px] mt-1">ទំព័រដើម</span>
+        </button>
+        <button onclick="switchTab('history')" id="btn-history" class="flex flex-col items-center p-2 text-gray-400 transition-all">
+            <span class="text-2xl">📜</span><span class="text-[10px] mt-1">ប្រវត្តិលក់</span>
+        </button>
+        <button onclick="switchTab('admin')" id="btn-admin" class="flex flex-col items-center p-2 text-gray-400 transition-all">
+            <span class="text-2xl">👤</span><span class="text-[10px] mt-1">អតិថិជន</span>
+        </button>
+    </nav>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, addDoc, updateDoc, doc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, onSnapshot, query, orderBy, serverTimestamp, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        const firebaseConfig = {
-            apiKey: "AIzaSyBezQ6VqgEpju9TpUzFB6xvgRkA71Z4YMk",
-            authDomain: "depokh-3ed7c.firebaseapp.com",
-            projectId: "depokh-3ed7c",
-            storageBucket: "depokh-3ed7c.firebasestorage.app",
-            messagingSenderId: "53266184310",
-            appId: "1:53266184310:web:c15761eb1de22c68c00757"
+        const firebaseConfig = { apiKey: "AIzaSyBezQ6VqgEpju9TpUzFB6xvgRkA71Z4YMk", authDomain: "depokh-3ed7c.firebaseapp.com", projectId: "depokh-3ed7c", storageBucket: "depokh-3ed7c.firebasestorage.app", messagingSenderId: "53266184310", appId: "1:53266184310:web:c15761eb1de22c68c00757" };
+        const db = getFirestore(initializeApp(firebaseConfig));
+
+        let allProducts = [], cart = [];
+
+        // --- Logic: Switch Tabs ---
+        window.switchTab = (tab) => {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('nav button').forEach(b => b.classList.remove('nav-active', 'text-gray-400'));
+            document.querySelectorAll('nav button').forEach(b => b.classList.add('text-gray-400'));
+            document.getElementById('tab-' + tab).classList.add('active');
+            document.getElementById('btn-' + tab).classList.add('nav-active');
+            document.getElementById('btn-' + tab).classList.remove('text-gray-400');
+            const titles = { home: 'KIMRA LOGISTICS', history: 'ORDER HISTORY', admin: 'CUSTOMER MANAGEMENT' };
+            document.getElementById('pageTitle').innerText = titles[tab];
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        let allProducts = [];
-
-        onSnapshot(query(collection(db, "products"), orderBy("createdAt", "desc")), (snapshot) => {
-            allProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        // --- Logic: Fetch Data ---
+        onSnapshot(query(collection(db, "products"), orderBy("createdAt", "desc")), (snap) => {
+            allProducts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
             renderProducts(allProducts);
         });
 
+        onSnapshot(query(collection(db, "sales"), orderBy("soldAt", "desc")), (snap) => {
+            const sales = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+            renderHistory(sales);
+            renderCustomerAccounts(sales);
+        });
+
+        // --- Logic: Home (Products) ---
         function renderProducts(data) {
-            const listDiv = document.getElementById('productList');
-            listDiv.innerHTML = data.map(item => `
-                <div class="bg-white p-4 rounded-[2rem] shadow-sm flex items-center space-x-4 border border-white">
-                    <img src="${item.image}" class="w-16 h-16 object-cover rounded-2xl bg-gray-50">
-                    <div class="flex-1">
-                        <h4 class="font-bold text-gray-800 text-sm">${item.name}</h4>
-                        <p class="text-green-600 font-black">$${item.price}</p>
-                        <p class="text-[10px] text-gray-400 font-bold uppercase">ស្តុក: ${item.stock}</p>
+            document.getElementById('productList').innerHTML = data.map(item => `
+                <div class="bg-white rounded-3xl shadow-sm border border-white p-3 hover:shadow-md transition relative">
+                    <img src="${item.image}" class="w-full h-32 object-cover rounded-2xl mb-3 bg-gray-50">
+                    <h4 class="text-xs font-bold text-gray-800 h-8 overflow-hidden line-clamp-2">${item.name}</h4>
+                    <div class="flex justify-between items-center mt-3">
+                        <span class="text-blue-900 font-black text-sm">$${item.price}</span>
+                        <button onclick="addToCart('${item.id}')" class="bg-blue-900 text-white w-9 h-9 rounded-xl flex items-center justify-center shadow-lg active:scale-90 transition">+</button>
                     </div>
-                    <button onclick="sellProduct('${item.id}')" class="bg-blue-900 text-white px-5 py-3 rounded-2xl font-bold active:scale-90 transition">លក់</button>
+                    ${item.stock < 10 ? `<span class="absolute top-4 left-4 bg-red-500 text-white text-[8px] px-2 py-0.5 rounded-full font-bold">ស្តុកសល់តិច</span>` : ''}
                 </div>
             `).join('');
         }
 
-        window.sellProduct = async (id) => {
+        // --- Logic: Cart Management ---
+        window.toggleCart = () => document.getElementById('cartDrawer').classList.toggle('translate-x-full');
+
+        window.addToCart = (id) => {
             const p = allProducts.find(i => i.id === id);
-            const qty = prompt(`លក់ ${p.name}\nបញ្ចូលចំនួន:`, "1");
-            if (!qty || isNaN(qty) || parseInt(qty) <= 0) return;
-            const sellQty = parseInt(qty);
-            if (sellQty > p.stock) return alert("ស្តុកមិនគ្រាន់!");
+            const exist = cart.find(i => i.id === id);
+            if (exist) {
+                if (exist.qty + 1 > p.stock) return alert("ស្តុកមិនគ្រាន់!");
+                exist.qty++;
+            } else {
+                if (p.stock <= 0) return alert("អស់ស្តុក!");
+                cart.push({ ...p, qty: 1 });
+            }
+            updateCart();
+        };
 
-            const customer = prompt("ឈ្មោះអតិថិជន:", "ភ្ញៀវទូទៅ");
+        function updateCart() {
+            document.getElementById('cartCount').innerText = cart.reduce((s, i) => s + i.qty, 0);
+            let total = 0;
+            document.getElementById('cartItems').innerHTML = cart.length ? cart.map((i, idx) => {
+                total += i.price * i.qty;
+                return `
+                    <div class="flex items-center justify-between bg-gray-50 p-3 rounded-2xl">
+                        <div class="flex items-center space-x-3">
+                            <img src="${i.image}" class="w-10 h-10 object-cover rounded-lg">
+                            <div><p class="text-[10px] font-bold">${i.name}</p><p class="text-[9px] text-blue-900 font-bold">$${i.price} x ${i.qty}</p></div>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <button onclick="changeQty(${idx}, -1)" class="w-6 h-6 bg-white border rounded-lg">-</button>
+                            <button onclick="changeQty(${idx}, 1)" class="w-6 h-6 bg-white border rounded-lg">+</button>
+                        </div>
+                    </div>`;
+            }).join('') : '<p class="text-center text-gray-400 py-10 italic text-sm">មិនទាន់មានទំនិញក្នុងកន្ត្រក</p>';
+            document.getElementById('cartTotal').innerText = `$${total.toFixed(2)}`;
+        }
 
+        window.changeQty = (idx, amt) => {
+            cart[idx].qty += amt;
+            if (cart[idx].qty <= 0) cart.splice(idx, 1);
+            else if (cart[idx].qty > cart[idx].stock) { alert("ស្តុកមិនគ្រាន់!"); cart[idx].qty = cart[idx].stock; }
+            updateCart();
+        };
+
+        window.checkout = async () => {
+            if (!cart.length) return;
+            const customer = prompt("ឈ្មោះអតិថិជន:", "ភ្ញៀវទូទៅ") || "ភ្ញៀវទូទៅ";
             try {
-                await addDoc(collection(db, "sales"), {
-                    productId: id, name: p.name, qty: sellQty, customer: customer || "ភ្ញៀវទូទៅ",
-                    cost: p.cost, price: p.price, totalSale: p.price * sellQty,
-                    totalProfit: (p.price - p.cost) * sellQty, soldAt: serverTimestamp()
-                });
-                await updateDoc(doc(db, "products", id), { stock: p.stock - sellQty });
-                alert("លក់បានជោគជ័យ!");
+                for (let item of cart) {
+                    await addDoc(collection(db, "sales"), { 
+                        productId: item.id, name: item.name, qty: item.qty, customer, 
+                        cost: item.cost, price: item.price, totalSale: item.price * item.qty, 
+                        totalProfit: (item.price - item.cost) * item.qty, soldAt: serverTimestamp() 
+                    });
+                    await updateDoc(doc(db, "products", item.id), { stock: item.stock - item.qty });
+                }
+                alert("លក់រួចរាល់!"); cart = []; updateCart(); toggleCart();
             } catch (e) { alert(e.message); }
         };
 
-        document.getElementById('searchInput').onkeyup = (e) => {
+        // --- Logic: History & Void Order (លុបវិក្កយបត្របូកស្តុកវិញ) ---
+        function renderHistory(data) {
+            let totalDay = 0;
+            document.getElementById('historyList').innerHTML = data.map(d => {
+                totalDay += d.totalSale;
+                return `
+                <div class="bg-white p-4 rounded-3xl border-l-4 border-blue-900 flex justify-between items-center shadow-sm">
+                    <div class="flex-1">
+                        <h4 class="text-xs font-bold text-gray-800">${d.name} <span class="text-blue-600">(x${d.qty})</span></h4>
+                        <p class="text-[9px] text-gray-400 font-bold italic">${d.soldAt?.toDate().toLocaleString('km-KH')}</p>
+                        <p class="text-[9px] text-orange-600 font-bold mt-1">👤 ${d.customer}</p>
+                    </div>
+                    <div class="text-right flex flex-col items-end">
+                        <p class="text-sm font-black text-blue-900 mb-1">$${d.totalSale.toFixed(2)}</p>
+                        <button onclick="voidOrder('${d.id}', '${d.productId}', ${d.qty})" class="text-[8px] bg-red-50 px-2 py-1 rounded-lg text-red-500 font-bold uppercase">លុប/បោះបង់</button>
+                    </div>
+                </div>`;
+            }).join('');
+            document.getElementById('historyStats').innerText = `ថ្ងៃនេះ៖ $${totalDay.toFixed(2)}`;
+        }
+
+        window.voidOrder = async (id, prodId, qty) => {
+            if (!confirm("តើអ្នកច្បាស់ទេថានឹងលុបវិក្កយបត្រនេះ? ស្តុកនឹងបូកត្រឡប់ទៅវិញអូតូ។")) return;
+            try {
+                const prodRef = doc(db, "products", prodId);
+                const prodSnap = await getDoc(prodRef);
+                if (prodSnap.exists()) {
+                    await updateDoc(prodRef, { stock: prodSnap.data().stock + qty });
+                }
+                await deleteDoc(doc(db, "sales", id));
+                alert("លុបរួចរាល់ និងបូកស្តុកវិញហើយ!");
+            } catch (e) { alert(e.message); }
+        };
+
+        // --- Logic: Admin (Customer Management) ---
+        function renderCustomerAccounts(data) {
+            const reports = {};
+            data.forEach(d => reports[d.customer] = (reports[d.customer] || 0) + (d.totalSale || 0));
+            document.getElementById('customerTable').innerHTML = Object.keys(reports).map(name => `
+                <tr class="hover:bg-blue-50/30 transition">
+                    <td class="p-4"><div class="font-bold text-gray-800">${name}</div><div class="text-[8px] text-green-500 font-bold">VIP CUSTOMER</div></td>
+                    <td class="p-4 text-right font-black text-blue-900 text-sm">$${reports[name].toFixed(2)}</td>
+                </tr>
+            `).join('');
+        }
+
+        // --- Logic: Search ---
+        document.getElementById('productSearch').onkeyup = (e) => {
             const term = e.target.value.toLowerCase();
             renderProducts(allProducts.filter(p => p.name.toLowerCase().includes(term)));
         };
