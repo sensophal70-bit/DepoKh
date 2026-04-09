@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KIMRA - Professional POS</title>
+    <title>KIMRA POS - PROFESSIONAL</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -14,61 +14,90 @@
         .tab-content.active { display: block; }
         .nav-active { color: #1e3a8a; font-weight: bold; border-top: 3px solid #1e3a8a; }
         input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; }
+
+        /* --- ស្ទាយវិក្កយបត្រឱ្យស្មើជួរគ្នា ១០០% --- */
+        #invoice-print-area { 
+            position: absolute; left: -9999px; width: 350px; background: white; padding: 25px;
+        }
+        .inv-header { text-align: center; border-bottom: 3px double #1e3a8a; padding-bottom: 10px; margin-bottom: 15px; }
+        .inv-table { width: 100%; border-collapse: collapse; }
+        
+        /* កំណត់ទំហំ Column ឱ្យថេរ */
+        .col-desc { width: 55%; text-align: left; }
+        .col-qty  { width: 15%; text-align: center; }
+        .col-total { width: 30%; text-align: right; }
+
+        .inv-table th { background: #f8fafc; color: #1e3a8a; padding: 8px 5px; font-size: 11px; border-bottom: 1px solid #1e3a8a; }
+        .inv-table td { padding: 8px 5px; border-bottom: 1px dashed #eee; font-size: 11px; color: #333; vertical-align: middle; }
+        .inv-total-box { margin-top: 15px; border-top: 2px solid #1e3a8a; padding-top: 10px; text-align: right; }
     </style>
 </head>
 <body class="pb-24">
 
     <header class="bg-blue-900 text-white p-4 sticky top-0 z-50 flex justify-between items-center shadow-lg">
-        <h1 id="mainTitle" class="text-xl font-bold italic">KIMRA POS</h1>
+        <h1 class="text-xl font-bold italic tracking-tighter">KIMRA POS</h1>
         <button onclick="toggleCart()" class="relative bg-white/20 p-2 rounded-xl active:scale-90 transition">
             🛒 <span id="cartCount" class="absolute -top-1 -right-1 bg-yellow-500 text-blue-900 text-[10px] font-black px-1.5 rounded-full">0</span>
         </button>
     </header>
 
-    <div id="tab-home" class="tab-content active p-4">
-        <input type="text" id="productSearch" onkeyup="searchProducts()" placeholder="ស្វែងរកទំនិញ..." class="w-full p-4 rounded-2xl border-none shadow-sm outline-none mb-4 text-sm">
-        
-        <div id="categorySlider" class="flex space-x-2 overflow-x-auto no-scrollbar mb-4 pb-2">
-            <button onclick="filterCategory('All')" class="bg-blue-900 text-white px-4 py-1.5 rounded-full text-xs font-bold whitespace-nowrap shadow-md">ទាំងអស់</button>
+    <main>
+        <div id="tab-home" class="tab-content active p-4">
+            <input type="text" id="productSearch" onkeyup="searchProducts()" placeholder="ស្វែងរកទំនិញ..." class="w-full p-4 rounded-2xl border-none shadow-sm outline-none mb-4 text-sm focus:ring-2 focus:ring-blue-500">
+            <div id="productList" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
         </div>
 
-        <div id="productList" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
-    </div>
-
-    <div id="tab-history" class="tab-content p-4">
-        <h3 class="font-bold text-gray-700 mb-4 border-l-4 border-yellow-500 pl-2">ប្រវត្តិការលក់</h3>
-        <div id="historyList" class="space-y-3"></div>
-    </div>
-
-    <div id="tab-admin" class="tab-content p-4">
-        <h3 class="font-bold text-gray-700 mb-4 border-l-4 border-blue-900 pl-2">បញ្ជីអតិថិជនសកម្ម</h3>
-        <div id="customerList" class="grid grid-cols-1 gap-3"></div>
-    </div>
-
-    <div id="productModal" class="fixed inset-0 bg-black/60 z-[100] hidden flex items-center justify-center p-4 backdrop-blur-sm">
-        <div class="bg-white rounded-[2.5rem] max-w-sm w-full overflow-hidden shadow-2xl relative">
-            <button onclick="closeModal()" class="absolute top-4 right-4 bg-white/80 w-8 h-8 rounded-full shadow text-gray-500">✕</button>
-            <img id="modalImg" class="w-full h-64 object-cover">
-            <div class="p-6">
-                <h2 id="modalName" class="text-xl font-bold text-gray-800"></h2>
-                <p id="modalPrice" class="text-2xl font-black text-blue-900 mt-2"></p>
-                <p id="modalStock" class="text-[10px] text-gray-400 mt-1 italic"></p>
-                <button id="modalAddBtn" class="w-full bg-blue-900 text-white py-4 rounded-2xl mt-6 font-bold shadow-lg active:scale-95 transition">+ បន្ថែមក្នុងកន្ត្រក</button>
-            </div>
+        <div id="tab-history" class="tab-content p-4">
+            <h3 class="font-bold text-gray-700 mb-4 border-l-4 border-yellow-500 pl-2">ប្រវត្តិការលក់</h3>
+            <div id="historyList" class="space-y-3"></div>
         </div>
-    </div>
+
+        <div id="tab-admin" class="tab-content p-4">
+            <h3 class="font-bold text-gray-700 mb-4 border-l-4 border-blue-900 pl-2">បញ្ជីអតិថិជន</h3>
+            <div id="customerList" class="grid grid-cols-1 gap-3"></div>
+        </div>
+    </main>
 
     <div id="cartDrawer" class="fixed inset-y-0 right-0 w-full max-w-sm bg-white shadow-2xl z-[100] transform translate-x-full transition-transform duration-300">
         <div class="p-6 h-full flex flex-col">
-            <div class="flex justify-between items-center mb-6 border-b pb-4">
+            <div class="flex justify-between items-center border-b pb-4 mb-4">
                 <h2 class="text-lg font-bold text-blue-900">កន្ត្រកទំនិញ</h2>
-                <button onclick="toggleCart()" class="text-xl text-gray-300">✕</button>
+                <button onclick="toggleCart()" class="text-gray-300 text-xl">✕</button>
             </div>
             <div id="cartItems" class="flex-1 overflow-y-auto space-y-4 no-scrollbar"></div>
             <div class="border-t pt-4 mt-4">
-                <div class="flex justify-between mb-4"><span class="font-bold text-gray-400">សរុប:</span><span id="cartTotal" class="text-2xl font-black text-blue-900">$0.00</span></div>
+                <div class="flex justify-between mb-4 font-bold text-gray-500 italic"><span>សរុប:</span><span id="cartTotal" class="text-2xl text-blue-900">$0.00</span></div>
                 <button onclick="checkout()" class="w-full bg-blue-900 text-white py-4 rounded-2xl font-bold active:scale-95 transition">បញ្ជាក់ការលក់</button>
             </div>
+        </div>
+    </div>
+
+    <div id="invoice-print-area">
+        <div class="inv-header">
+            <div style="font-size: 24px; font-weight: bold; color: #1e3a8a;">KIMRA</div>
+            <div style="font-size: 10px; color: #666; margin-top: -5px;">Construction & Logistics</div>
+            <div style="font-size: 13px; font-weight: bold; margin-top: 10px; text-decoration: underline;">វិក្កយបត្រ / INVOICE</div>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 10px; margin-bottom: 10px;">
+            <div><strong>អតិថិជន:</strong> <span id="pdf-cust-name"></span></div>
+            <div style="text-align: right;"><strong>កាលបរិច្ឆេទ:</strong><br><span id="pdf-date"></span></div>
+        </div>
+        <table class="inv-table">
+            <thead>
+                <tr>
+                    <th class="col-desc">បរិយាយ</th>
+                    <th class="col-qty">ចំនួន</th>
+                    <th class="col-total">សរុប</th>
+                </tr>
+            </thead>
+            <tbody id="pdf-items"></tbody>
+        </table>
+        <div class="inv-total-box">
+            <span style="font-size: 11px; color: #666;">សរុបរួម (Grand Total):</span>
+            <div id="pdf-total" style="font-size: 20px; font-weight: 900; color: #1e3a8a;"></div>
+        </div>
+        <div style="text-align: center; font-size: 9px; color: #999; margin-top: 30px; border-top: 1px solid #eee; padding-top: 10px;">
+            សូមអរគុណ! ទំនិញទិញហើយមិនអាចប្តូរវិញបានទេ។
         </div>
     </div>
 
@@ -82,38 +111,38 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc, updateDoc, doc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
+        // Firebase Config របស់បង
         const firebaseConfig = { apiKey: "AIzaSyBezQ6VqgEpju9TpUzFB6xvgRkA71Z4YMk", authDomain: "depokh-3ed7c.firebaseapp.com", projectId: "depokh-3ed7c", storageBucket: "depokh-3ed7c.firebasestorage.app", messagingSenderId: "53266184310", appId: "1:53266184310:web:c15761eb1de22c68c00757" };
         const db = getFirestore(initializeApp(firebaseConfig));
 
         let allProducts = [], cart = [];
 
-        // Tab Switcher
         window.switchTab = (tab) => {
             document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('nav button').forEach(b => b.classList.remove('nav-active', 'text-gray-400'));
             document.getElementById('tab-' + tab).classList.add('active');
             document.getElementById('btn-' + tab).classList.add('nav-active');
-            document.getElementById('mainTitle').innerText = tab.toUpperCase();
         };
 
-        // Real-time Data
+        // ១. ទាញទិន្នន័យទំនិញ (Products)
         onSnapshot(query(collection(db, "products"), orderBy("createdAt", "desc")), (snap) => {
             allProducts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
             renderProducts(allProducts);
         });
 
+        // ២. ទាញទិន្នន័យប្រវត្តិលក់ (Sales)
         onSnapshot(query(collection(db, "sales"), orderBy("soldAt", "desc")), (snap) => {
             const sales = snap.docs.map(d => ({ id: d.id, ...d.data() }));
             renderHistory(sales);
-            renderCustomerAccounts(sales);
+            renderCustomers(sales);
+            window.allSales = sales;
         });
 
-        // Render Functions
         function renderProducts(data) {
             document.getElementById('productList').innerHTML = data.map(item => `
-                <div class="bg-white rounded-3xl shadow-sm p-3 border border-white hover:shadow-md transition cursor-pointer" onclick="showPopup('${item.id}')">
-                    <img src="${item.image}" class="w-full h-28 object-cover rounded-2xl mb-2">
-                    <h4 class="text-[11px] font-bold text-gray-800 truncate">${item.name}</h4>
+                <div class="bg-white rounded-3xl shadow-sm p-3 border border-white active:scale-95 transition cursor-pointer" onclick="addToCart('${item.id}')">
+                    <img src="${item.image}" class="w-full h-24 object-cover rounded-2xl mb-2 bg-gray-50">
+                    <h4 class="text-[10px] font-bold text-gray-800 truncate">${item.name}</h4>
                     <p class="text-blue-900 font-black text-xs mt-1">$${item.price}</p>
                 </div>
             `).join('');
@@ -124,19 +153,6 @@
             renderProducts(allProducts.filter(p => p.name.toLowerCase().includes(term)));
         };
 
-        // Popup Details
-        window.showPopup = (id) => {
-            const p = allProducts.find(i => i.id === id);
-            document.getElementById('modalImg').src = p.image;
-            document.getElementById('modalName').innerText = p.name;
-            document.getElementById('modalPrice').innerText = '$' + p.price;
-            document.getElementById('modalStock').innerText = 'ស្តុកបច្ចុប្បន្ន៖ ' + p.stock;
-            document.getElementById('modalAddBtn').onclick = () => { addToCart(id); closeModal(); };
-            document.getElementById('productModal').classList.remove('hidden');
-        };
-        window.closeModal = () => document.getElementById('productModal').classList.add('hidden');
-
-        // Cart Logic
         window.toggleCart = () => document.getElementById('cartDrawer').classList.toggle('translate-x-full');
 
         window.addToCart = (id) => {
@@ -159,17 +175,17 @@
                 total += i.price * i.qty;
                 return `
                 <div class="bg-gray-50 p-3 rounded-2xl flex items-center justify-between">
-                    <div class="flex items-center space-x-2">
+                    <div class="flex items-center space-x-2 w-1/2">
                         <img src="${i.image}" class="w-10 h-10 object-cover rounded-lg">
-                        <div><p class="text-[10px] font-bold">${i.name}</p><p class="text-[9px] text-blue-900">$${i.price}</p></div>
+                        <div class="truncate"><p class="text-[9px] font-bold truncate">${i.name}</p><p class="text-[9px] text-blue-900 font-bold">$${i.price}</p></div>
                     </div>
                     <div class="flex items-center space-x-1">
-                        <button onclick="changeQty(${idx}, -1)" class="w-6 h-6 bg-white border rounded">-</button>
+                        <button onclick="changeQty(${idx}, -1)" class="w-6 h-6 bg-white border rounded shadow-sm text-xs">-</button>
                         <input type="number" value="${i.qty}" onchange="manualQty(${idx}, this.value)" 
                                onkeypress="return (event.charCode >= 48 && event.charCode <= 57)"
-                               class="w-8 text-center text-xs font-bold bg-transparent outline-none">
-                        <button onclick="changeQty(${idx}, 1)" class="w-6 h-6 bg-white border rounded">+</button>
-                        <button onclick="deleteItem(${idx})" class="ml-2 text-red-400">🗑️</button>
+                               class="w-8 text-center text-[10px] font-bold bg-transparent outline-none">
+                        <button onclick="changeQty(${idx}, 1)" class="w-6 h-6 bg-white border rounded shadow-sm text-xs">+</button>
+                        <button onclick="deleteItem(${idx})" class="ml-1 text-red-400">🗑️</button>
                     </div>
                 </div>`;
             }).join('');
@@ -193,43 +209,82 @@
 
         window.deleteItem = (idx) => { cart.splice(idx, 1); updateCartUI(); };
 
-        // History & PDF
         function renderHistory(data) {
             document.getElementById('historyList').innerHTML = data.map(d => `
                 <div class="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-blue-900 flex justify-between items-center">
-                    <div class="text-xs">
-                        <p class="font-bold">${d.name} (x${d.qty})</p>
+                    <div class="w-2/3">
+                        <p class="text-[11px] font-bold text-gray-800 truncate">${d.name} (x${d.qty})</p>
                         <p class="text-[9px] text-gray-400 italic">${d.soldAt?.toDate().toLocaleString('km-KH')}</p>
+                        <p class="text-[9px] text-blue-600 font-bold uppercase mt-1">👤 ${d.customer}</p>
                     </div>
                     <div class="text-right">
-                        <p class="font-black text-blue-900">$${d.totalSale.toFixed(2)}</p>
-                        <button onclick="alert('PDF Generated for ${d.customer}')" class="text-[8px] bg-blue-50 text-blue-600 px-2 py-1 rounded-full font-bold">PDF BILL</button>
+                        <p class="text-sm font-black text-blue-900 mb-1">$${d.totalSale.toFixed(2)}</p>
+                        <button onclick="generatePDF('${d.id}')" class="text-[9px] bg-blue-50 text-blue-600 px-3 py-1 rounded-full font-bold">PDF BILL</button>
                     </div>
-                </div>
-            `).join('');
+                </div>`).join('');
         }
 
-        // Customer Accounts (From registers/sales)
-        function renderCustomerAccounts(data) {
+        function renderCustomers(data) {
             const names = [...new Set(data.map(d => d.customer))];
             document.getElementById('customerList').innerHTML = names.map(n => `
-                <div class="bg-white p-4 rounded-2xl border flex items-center space-x-3">
+                <div class="bg-white p-4 rounded-2xl border flex items-center space-x-3 shadow-sm">
                     <div class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center font-bold text-blue-900">${n.charAt(0)}</div>
                     <p class="font-bold text-gray-700 text-sm">${n}</p>
-                </div>
-            `).join('');
+                </div>`).join('');
         }
+
+        // --- មុខងារបង្កើត PDF ដែលស្មើរជួរគ្នា ១០០% ---
+        window.generatePDF = async (id) => {
+            const sale = window.allSales.find(s => s.id === id);
+            if(!sale) return;
+
+            // ១. បំពេញទិន្នន័យ
+            document.getElementById('pdf-cust-name').innerText = sale.customer;
+            document.getElementById('pdf-date').innerText = sale.soldAt?.toDate().toLocaleString('km-KH');
+            document.getElementById('pdf-total').innerText = '$' + sale.totalSale.toFixed(2);
+            
+            // ២. ចាក់ជួរទំនិញចូល (ប្រើ Class ជួរដែលបានកំណត់ទំហំ)
+            document.getElementById('pdf-items').innerHTML = `
+                <tr>
+                    <td class="col-desc" style="font-weight:bold;">${sale.name}</td>
+                    <td class="col-qty">${sale.qty}</td>
+                    <td class="col-total" style="font-weight:bold;">$${sale.totalSale.toFixed(2)}</td>
+                </tr>`;
+            
+            // ៣. បំប្លែង HTML ទៅជា Canvas (រូបភាពច្បាស់)
+            const area = document.getElementById('invoice-print-area');
+            const canvas = await html2canvas(area, { scale: 4, useCORS: true });
+            const img = canvas.toDataURL('image/png');
+            
+            // ៤. បង្កើត PDF
+            const { jsPDF } = window.jspdf;
+            const pdf = new jsPDF({ 
+                unit: 'px', 
+                format: [canvas.width/4, canvas.height/4] 
+            });
+
+            pdf.addImage(img, 'PNG', 0, 0, canvas.width/4, canvas.height/4);
+            pdf.save(`KIMRA_Inv_${sale.customer}.pdf`);
+        };
 
         window.checkout = async () => {
             if (!cart.length) return;
             const customer = prompt("ឈ្មោះអតិថិជន:", "ភ្ញៀវទូទៅ") || "ភ្ញៀវទូទៅ";
             for (let item of cart) {
-                await addDoc(collection(db, "sales"), { productId: item.id, name: item.name, qty: item.qty, customer, totalSale: item.price * item.qty, soldAt: serverTimestamp() });
-                await updateDoc(doc(db, "products", item.id), { stock: item.stock - item.qty });
+                await addDoc(collection(db, "sales"), { 
+                    productId: item.id, 
+                    name: item.name, 
+                    qty: item.qty, 
+                    customer, 
+                    totalSale: item.price * item.qty, 
+                    soldAt: serverTimestamp() 
+                });
+                await updateDoc(doc(db, "products", item.id), { 
+                    stock: item.stock - item.qty 
+                });
             }
-            alert("ជោគជ័យ!"); cart = []; updateCartUI(); toggleCart();
+            alert("លក់ជោគជ័យ!"); cart = []; updateCartUI(); toggleCart();
         };
-
     </script>
 </body>
 </html>
