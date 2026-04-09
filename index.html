@@ -1,127 +1,60 @@
-<!DOCTYPE html>
-<html lang="km">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KIMRA POS - PDF Export Fix</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;700&display=swap" rel="stylesheet">
-    
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    
-    <style>
-        body { font-family: 'Kantumruy Pro', sans-serif; background-color: #f8fafc; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        .nav-active { color: #1e3a8a; font-weight: bold; border-top: 3px solid #1e3a8a; }
-        /* កន្លែងសម្រាប់លាក់តារាងវិក្កយបត្រមុនពេល Export */
-        #invoice-print-area { position: absolute; left: -9999px; top: 0; width: 400px; background: white; padding: 20px; }
-    </style>
-</head>
-<body class="pb-24">
+<style>
+    /* រចនាបថវិក្កយបត្រឱ្យស្អាតសម្រាប់ PDF */
+    #invoice-print-area { 
+        position: absolute; 
+        left: -9999px; 
+        width: 350px; 
+        background: white; 
+        padding: 30px; 
+        font-family: 'Kantumruy Pro', sans-serif;
+    }
+    .inv-header { text-align: center; border-bottom: 2px solid #1e3a8a; padding-bottom: 10px; margin-bottom: 15px; }
+    .inv-logo { font-size: 24px; font-weight: bold; color: #1e3a8a; font-style: italic; }
+    .inv-info { display: flex; justify-content: space-between; font-size: 11px; margin-bottom: 15px; color: #333; }
+    .inv-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+    .inv-table th { background: #1e3a8a; color: white; font-size: 11px; padding: 8px; text-align: left; }
+    .inv-table td { padding: 8px; font-size: 11px; border-bottom: 1px solid #eee; }
+    .inv-total { text-align: right; font-size: 16px; font-weight: bold; color: #1e3a8a; }
+    .inv-footer { text-align: center; font-size: 10px; color: #888; margin-top: 20px; border-top: 1px dashed #ddd; padding-top: 10px; }
+</style>
 
-    <header class="bg-blue-900 text-white p-4 sticky top-0 z-50 flex justify-between items-center shadow-lg">
-        <h1 class="text-xl font-bold italic">KIMRA POS</h1>
-    </header>
-
-    <div id="tab-history" class="p-4 active tab-content">
-        <h3 class="font-bold text-gray-700 mb-4 border-l-4 border-yellow-500 pl-2">ប្រវត្តិការលក់</h3>
-        <div id="historyList" class="space-y-3"></div>
+<div id="invoice-print-area">
+    <div class="inv-header">
+        <div class="inv-logo">KIMRA</div>
+        <div style="font-size: 10px; color: #666;">Construction & Logistics</div>
+        <div style="font-size: 12px; font-weight: bold; margin-top: 5px; color: #1e3a8a;">វិក្កយបត្រទូទាត់ប្រាក់ / INVOICE</div>
     </div>
 
-    <div id="invoice-print-area">
-        <div style="text-align: center;">
-            <h2 style="margin: 0; font-size: 20px;">KIMRA SHOP</h2>
-            <p style="font-size: 10px;">វិក្កយបត្រទូទាត់ប្រាក់ (Invoice)</p>
+    <div class="inv-info">
+        <div>
+            <p><strong>អតិថិជន:</strong> <span id="pdf-cust-name"></span></p>
+            <p><strong>លេខទូរស័ព្ទ:</strong> <span id="pdf-cust-phone">---</span></p>
         </div>
-        <hr style="margin: 10px 0;">
-        <div style="font-size: 12px;">
-            <p>អតិថិជន៖ <span id="pdf-cust-name"></span></p>
-            <p>ថ្ងៃខែ៖ <span id="pdf-date"></span></p>
+        <div style="text-align: right;">
+            <p><strong>កាលបរិច្ឆេទ:</strong></p>
+            <p id="pdf-date"></p>
         </div>
-        <table style="width: 100%; font-size: 12px; margin-top: 10px; border-collapse: collapse;">
-            <thead style="background: #f0f0f0;">
-                <tr>
-                    <th style="text-align: left; padding: 5px;">ទំនិញ</th>
-                    <th style="text-align: center;">ចំនួន</th>
-                    <th style="text-align: right;">តម្លៃ</th>
-                </tr>
-            </thead>
-            <tbody id="pdf-items"></tbody>
-        </table>
-        <hr style="margin: 10px 0;">
-        <div style="text-align: right; font-weight: bold; font-size: 14px;">
-            សរុប៖ <span id="pdf-total" style="color: #1e3a8a;"></span>
-        </div>
-        <p style="text-align: center; font-size: 9px; margin-top: 20px; color: #888;">សូមអរគុណ! សូមអញ្ជើញមកម្តងទៀត។</p>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    <table class="inv-table">
+        <thead>
+            <tr>
+                <th>បរិយាយទំនិញ</th>
+                <th style="text-align: center;">ចំនួន</th>
+                <th style="text-align: right;">តម្លៃសរុប</th>
+            </tr>
+        </thead>
+        <tbody id="pdf-items">
+            </tbody>
+    </table>
 
-        const firebaseConfig = { apiKey: "AIzaSyBezQ6VqgEpju9TpUzFB6xvgRkA71Z4YMk", authDomain: "depokh-3ed7c.firebaseapp.com", projectId: "depokh-3ed7c", storageBucket: "depokh-3ed7c.firebasestorage.app", messagingSenderId: "53266184310", appId: "1:53266184310:web:c15761eb1de22c68c00757" };
-        const db = getFirestore(initializeApp(firebaseConfig));
+    <div class="inv-total">
+        <span style="font-size: 12px; color: #666; font-weight: normal;">សរុបរួម: </span>
+        <span id="pdf-total"></span>
+    </div>
 
-        // ទាញទិន្នន័យមកបង្ហាញក្នុង List
-        onSnapshot(query(collection(db, "sales"), orderBy("soldAt", "desc")), (snap) => {
-            const historyList = document.getElementById('historyList');
-            historyList.innerHTML = snap.docs.map(doc => {
-                const d = doc.data();
-                const id = doc.id;
-                return `
-                <div class="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-blue-900 flex justify-between items-center">
-                    <div>
-                        <p class="text-xs font-bold text-gray-800">${d.name} (x${d.qty})</p>
-                        <p class="text-[9px] text-gray-400 font-bold italic">${d.soldAt?.toDate().toLocaleString('km-KH')}</p>
-                        <p class="text-[9px] text-orange-600 font-bold">👤 ${d.customer}</p>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-sm font-black text-blue-900 mb-1">$${d.totalSale.toFixed(2)}</p>
-                        <button onclick="generatePDF('${id}')" class="bg-blue-50 text-blue-600 px-3 py-1 rounded-full text-[9px] font-bold border border-blue-200 active:bg-blue-200 transition">
-                            PDF INVOICE
-                        </button>
-                    </div>
-                </div>`;
-            }).join('');
-            
-            // បញ្ជូន Data ទៅ Window ដើម្បីឱ្យប៊ូតុង onclick ស្គាល់
-            window.allSales = snap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        });
-
-        // មុខងារបង្កើត PDF
-        window.generatePDF = async (saleId) => {
-            const sale = window.allSales.find(s => s.id === saleId);
-            if (!sale) return;
-
-            // ១. បំពេញទិន្នន័យចូលក្នុង Template លាក់
-            document.getElementById('pdf-cust-name').innerText = sale.customer;
-            document.getElementById('pdf-date').innerText = sale.soldAt?.toDate().toLocaleString('km-KH');
-            document.getElementById('pdf-total').innerText = '$' + sale.totalSale.toFixed(2);
-            document.getElementById('pdf-items').innerHTML = `
-                <tr>
-                    <td style="padding: 5px; border-bottom: 1px solid #eee;">${sale.name}</td>
-                    <td style="text-align: center; border-bottom: 1px solid #eee;">${sale.qty}</td>
-                    <td style="text-align: right; border-bottom: 1px solid #eee;">$${sale.totalSale.toFixed(2)}</td>
-                </tr>
-            `;
-
-            // ២. បំប្លែង HTML ទៅជា Canvas និង PDF
-            const area = document.getElementById('invoice-print-area');
-            const canvas = await html2canvas(area, { scale: 2 });
-            const imgData = canvas.toDataURL('image/png');
-            
-            const { jsPDF } = window.jspdf;
-            const pdf = new jsPDF({
-                unit: 'px',
-                format: [canvas.width / 2, canvas.height / 2]
-            });
-
-            pdf.addImage(imgData, 'PNG', 0, 0, canvas.width / 2, canvas.height / 2);
-            pdf.save(`Invoice_${sale.customer}_${saleId.substring(0, 5)}.pdf`);
-        };
-
-    </script>
-</body>
-</html>
+    <div class="inv-footer">
+        <p>សូមអរគុណចំពោះការគាំទ្រ!</p>
+        <p style="margin-top: 5px;">ទំនិញទិញហើយមិនអាចប្តូរវិញបានទេ</p>
+    </div>
+</div>
