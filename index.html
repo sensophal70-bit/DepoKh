@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KIMRA POS - FULL SYSTEM</title>
+    <title>KIMRA POS - 3 COLUMN VIEW</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Kantumruy+Pro:wght@300;400;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -15,39 +15,53 @@
         .nav-active { color: #1e3a8a; font-weight: bold; border-top: 3px solid #1e3a8a; }
         .category-chip.active { background-color: #1e3a8a; color: white; }
         
-        /* PDF Fix Style */
+        /* PDF Style - Fixed Columns */
         #invoice-print-area { position: absolute; left: -9999px; width: 350px; background: white; padding: 25px; }
         .col-desc { width: 55%; text-align: left; }
         .col-qty  { width: 15%; text-align: center; }
         .col-total { width: 30%; text-align: right; }
-        .inv-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        .inv-table th { border-bottom: 2px solid #1e3a8a; padding: 5px; font-size: 11px; }
+        .inv-table { width: 100%; border-collapse: collapse; }
         .inv-table td { border-bottom: 1px dashed #eee; padding: 8px 5px; font-size: 11px; }
     </style>
 </head>
 <body class="pb-24">
 
     <header class="bg-blue-900 text-white p-4 sticky top-0 z-50 flex justify-between items-center shadow-md">
-        <h1 class="text-xl font-bold italic">KIMRA POS</h1>
+        <h1 class="text-lg font-bold italic">KIMRA POS</h1>
         <button onclick="toggleCart()" class="relative bg-white/20 p-2 rounded-xl">
             🛒 <span id="cartCount" class="absolute -top-1 -right-1 bg-yellow-500 text-blue-900 text-[10px] font-black px-1.5 rounded-full">0</span>
         </button>
     </header>
 
-    <main class="p-4">
+    <main class="p-3">
         <div id="tab-home" class="tab-content active">
-            <input type="text" id="productSearch" onkeyup="searchProducts()" placeholder="ស្វែងរកទំនិញ..." class="w-full p-4 rounded-2xl border-none shadow-sm mb-4 outline-none focus:ring-2 focus:ring-blue-500">
+            <input type="text" id="productSearch" onkeyup="searchProducts()" placeholder="ស្វែងរក..." class="w-full p-3 rounded-xl border-none shadow-sm mb-3 outline-none text-sm focus:ring-2 focus:ring-blue-500">
             
-            <div id="categoryContainer" class="flex space-x-2 overflow-x-auto pb-4 no-scrollbar">
-                <button onclick="filterCategory('All')" class="category-chip active px-4 py-2 bg-white rounded-full shadow-sm text-xs whitespace-nowrap">ទាំងអស់</button>
-            </div>
+            <div id="categoryContainer" class="flex space-x-2 overflow-x-auto pb-3 no-scrollbar text-[11px]">
+                </div>
 
-            <div id="productList" class="grid grid-cols-2 gap-4"></div>
+            <div id="productList" class="grid grid-cols-3 gap-2"></div>
         </div>
 
         <div id="tab-history" class="tab-content">
             <h3 class="font-bold text-gray-700 mb-4 border-l-4 border-yellow-500 pl-2">ប្រវត្តិការលក់</h3>
-            <div id="historyList" class="space-y-3"></div>
+            <div id="historyList" class="space-y-2 text-sm"></div>
+        </div>
+
+        <div id="tab-setting" class="tab-content">
+            <h3 class="font-bold text-gray-700 mb-4 border-l-4 border-blue-900 pl-2">ការកំណត់</h3>
+            <div class="bg-white rounded-2xl p-4 shadow-sm space-y-4">
+                <div class="flex items-center justify-between border-b pb-2">
+                    <span>ឈ្មោះហាង</span>
+                    <span class="font-bold text-blue-900">KIMRA Construction</span>
+                </div>
+                <div class="flex items-center justify-between border-b pb-2">
+                    <span>អ្នកប្រើប្រាស់</span>
+                    <span class="text-gray-500">Admin</span>
+                </div>
+                <button onclick="alert('Coming soon...')" class="w-full bg-gray-100 py-3 rounded-xl text-sm font-bold text-gray-700">គ្រប់គ្រងផលិតផល</button>
+                <button onclick="location.reload()" class="w-full bg-red-50 py-3 rounded-xl text-sm font-bold text-red-600">ចាកចេញ</button>
+            </div>
         </div>
     </main>
 
@@ -58,36 +72,28 @@
                 <button onclick="toggleCart()" class="text-gray-300">✕</button>
             </div>
             <div id="cartItems" class="flex-1 overflow-y-auto space-y-4"></div>
-            <div class="border-t pt-4 mt-4 text-right">
-                <p class="text-gray-400 italic">សរុប:</p>
-                <p id="cartTotal" class="text-3xl font-black text-blue-900 mb-4">$0.00</p>
+            <div class="border-t pt-4">
+                <p id="cartTotal" class="text-2xl font-black text-blue-900 mb-4 text-right">$0.00</p>
                 <button onclick="checkout()" class="w-full bg-blue-900 text-white py-4 rounded-2xl font-bold">បញ្ជាក់ការលក់</button>
             </div>
         </div>
     </div>
 
     <div id="invoice-print-area">
-        <div style="text-align: center; border-bottom: 3px double #1e3a8a; padding-bottom: 10px;">
+        <div style="text-align: center; border-bottom: 2px solid #1e3a8a; padding-bottom: 5px;">
             <h2 style="margin: 0; color: #1e3a8a;">KIMRA</h2>
-            <p style="font-size: 10px; margin: 0;">Construction & Logistics</p>
-        </div>
-        <div style="display: flex; justify-content: space-between; font-size: 10px; margin: 10px 0;">
-            <span>អតិថិជន: <b id="pdf-cust-name"></b></span>
-            <span id="pdf-date"></span>
         </div>
         <table class="inv-table">
-            <thead><tr><th class="col-desc">មុខទំនិញ</th><th class="col-qty">ចំនួន</th><th class="col-total">សរុប</th></tr></thead>
+            <thead><tr style="font-size: 10px; border-bottom: 1px solid #333;"><th class="col-desc">មុខទំនិញ</th><th class="col-qty">ចំនួន</th><th class="col-total">សរុប</th></tr></thead>
             <tbody id="pdf-items"></tbody>
         </table>
-        <div style="text-align: right; margin-top: 15px; border-top: 2px solid #1e3a8a; padding-top: 5px;">
-            <p style="font-size: 11px; margin: 0;">សរុបរួម:</p>
-            <h3 id="pdf-total" style="margin: 0; color: #1e3a8a; font-size: 20px;"></h3>
-        </div>
+        <h3 id="pdf-total" style="text-align: right; color: #1e3a8a; margin-top: 10px;"></h3>
     </div>
 
     <nav class="fixed bottom-0 left-0 right-0 bg-white border-t flex justify-around p-3 z-50 rounded-t-3xl shadow-lg">
-        <button onclick="switchTab('home')" id="btn-home" class="flex flex-col items-center nav-active">🏠<span class="text-[10px]">ដើម</span></button>
+        <button onclick="switchTab('home')" id="btn-home" class="flex flex-col items-center nav-active text-gray-400">🏠<span class="text-[10px]">ដើម</span></button>
         <button onclick="switchTab('history')" id="btn-history" class="flex flex-col items-center text-gray-400">📜<span class="text-[10px]">ប្រវត្តិ</span></button>
+        <button onclick="switchTab('setting')" id="btn-setting" class="flex flex-col items-center text-gray-400">⚙️<span class="text-[10px]">កំណត់</span></button>
     </nav>
 
     <script type="module">
@@ -99,14 +105,12 @@
 
         let allProducts = [], cart = [], currentCat = 'All';
 
-        // Listen for Products
         onSnapshot(query(collection(db, "products"), orderBy("createdAt", "desc")), (snap) => {
             allProducts = snap.docs.map(d => ({ id: d.id, ...d.data() }));
             renderCategories();
             renderProducts();
         });
 
-        // Listen for Sales
         onSnapshot(query(collection(db, "sales"), orderBy("soldAt", "desc")), (snap) => {
             window.allSales = snap.docs.map(d => ({ id: d.id, ...d.data() }));
             renderHistory();
@@ -115,33 +119,28 @@
         function renderCategories() {
             const cats = ['All', ...new Set(allProducts.map(p => p.category).filter(Boolean))];
             document.getElementById('categoryContainer').innerHTML = cats.map(c => `
-                <button onclick="filterCategory('${c}')" class="category-chip ${currentCat === c ? 'active' : ''} px-4 py-2 bg-white rounded-full shadow-sm text-xs whitespace-nowrap border">
+                <button onclick="filterCategory('${c}')" class="category-chip ${currentCat === c ? 'active' : ''} px-3 py-1.5 bg-white rounded-full border shadow-sm whitespace-nowrap">
                     ${c === 'All' ? 'ទាំងអស់' : c}
                 </button>
             `).join('');
         }
 
-        window.filterCategory = (cat) => {
-            currentCat = cat;
-            renderCategories();
-            renderProducts();
-        };
+        window.filterCategory = (cat) => { currentCat = cat; renderCategories(); renderProducts(); };
 
         function renderProducts() {
             let filtered = allProducts;
             if (currentCat !== 'All') filtered = allProducts.filter(p => p.category === currentCat);
             
             document.getElementById('productList').innerHTML = filtered.map(item => `
-                <div class="bg-white rounded-3xl shadow-sm p-3 relative border border-white active:scale-95 transition">
-                    <img src="${item.image}" class="w-full h-24 object-cover rounded-2xl mb-2 bg-gray-50">
-                    <h4 class="text-[10px] font-bold text-gray-800 truncate px-1">${item.name}</h4>
-                    <div class="flex justify-between items-center mt-2 px-1">
-                        <p class="text-blue-900 font-black text-xs">$${item.price}</p>
-                        <button onclick="addToCart('${item.id}')" class="bg-blue-900 text-white w-7 h-7 rounded-full flex items-center justify-center shadow-md active:bg-blue-700">
+                <div class="bg-white rounded-2xl shadow-sm p-2 relative active:scale-95 transition flex flex-col justify-between h-40 border border-gray-50">
+                    <img src="${item.image}" class="w-full h-16 object-cover rounded-xl mb-1 bg-gray-50">
+                    <h4 class="text-[9px] font-bold text-gray-700 truncate line-clamp-2">${item.name}</h4>
+                    <div class="flex justify-between items-center mt-1">
+                        <p class="text-blue-900 font-black text-[10px]">$${item.price}</p>
+                        <button onclick="addToCart('${item.id}')" class="bg-blue-900 text-white w-6 h-6 rounded-full flex items-center justify-center shadow-md text-xs">
                             +
                         </button>
                     </div>
-                    ${item.stock <= 5 ? `<span class="absolute top-2 right-2 bg-red-500 text-white text-[8px] px-1.5 rounded-full">សល់ ${item.stock}</span>` : ''}
                 </div>
             `).join('');
         }
@@ -149,13 +148,8 @@
         window.addToCart = (id) => {
             const p = allProducts.find(i => i.id === id);
             const exist = cart.find(i => i.id === id);
-            if (exist) {
-                if (exist.qty + 1 > p.stock) return alert("អស់ស្តុក!");
-                exist.qty++;
-            } else {
-                if (p.stock <= 0) return alert("អស់ស្តុក!");
-                cart.push({ ...p, qty: 1 });
-            }
+            if (exist) { if (exist.qty + 1 > p.stock) return alert("អស់ស្តុក!"); exist.qty++; }
+            else { if (p.stock <= 0) return alert("អស់ស្តុក!"); cart.push({ ...p, qty: 1 }); }
             updateCartUI();
         };
 
@@ -164,16 +158,12 @@
             let total = 0;
             document.getElementById('cartItems').innerHTML = cart.map((i, idx) => {
                 total += i.price * i.qty;
-                return `
-                <div class="bg-gray-50 p-3 rounded-2xl flex items-center justify-between">
-                    <div class="flex items-center space-x-2 w-1/2">
-                        <img src="${i.image}" class="w-10 h-10 object-cover rounded-lg">
-                        <div class="truncate"><p class="text-[9px] font-bold truncate">${i.name}</p></div>
-                    </div>
-                    <div class="flex items-center space-x-1">
-                        <button onclick="changeQty(${idx}, -1)" class="w-6 h-6 bg-white border rounded text-xs">-</button>
-                        <span class="w-6 text-center text-xs font-bold">${i.qty}</span>
-                        <button onclick="changeQty(${idx}, 1)" class="w-6 h-6 bg-white border rounded text-xs">+</button>
+                return `<div class="bg-gray-50 p-2 rounded-xl flex justify-between items-center">
+                    <p class="text-[10px] font-bold w-1/2 truncate">${i.name}</p>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="changeQty(${idx}, -1)" class="w-5 h-5 bg-white border rounded">-</button>
+                        <span class="text-xs font-bold">${i.qty}</span>
+                        <button onclick="changeQty(${idx}, 1)" class="w-5 h-5 bg-white border rounded">+</button>
                     </div>
                 </div>`;
             }).join('');
@@ -183,42 +173,35 @@
         window.changeQty = (idx, amt) => {
             cart[idx].qty += amt;
             if (cart[idx].qty <= 0) cart.splice(idx, 1);
-            else if (cart[idx].qty > cart[idx].stock) { alert("លើសស្តុក!"); cart[idx].qty = cart[idx].stock; }
             updateCartUI();
         };
 
         window.renderHistory = () => {
             document.getElementById('historyList').innerHTML = window.allSales.map(d => `
-                <div class="bg-white p-4 rounded-2xl shadow-sm border-l-4 border-blue-900 flex justify-between items-center">
-                    <div>
-                        <p class="text-[11px] font-bold text-gray-800">${d.name} (x${d.qty})</p>
-                        <p class="text-[9px] text-blue-600 font-bold uppercase mt-1">👤 ${d.customer}</p>
-                    </div>
-                    <button onclick="generatePDF('${d.id}')" class="text-[9px] bg-blue-50 text-blue-600 px-3 py-1 rounded-full font-bold border border-blue-100">PDF</button>
+                <div class="bg-white p-3 rounded-xl shadow-sm flex justify-between items-center border-l-4 border-blue-900">
+                    <div class="w-2/3"><p class="font-bold truncate">${d.name} (x${d.qty})</p></div>
+                    <button onclick="generatePDF('${d.id}')" class="text-[10px] bg-blue-50 text-blue-600 px-3 py-1 rounded-full font-bold uppercase">PDF</button>
                 </div>`).join('');
         };
 
         window.generatePDF = async (id) => {
             const sale = window.allSales.find(s => s.id === id);
-            document.getElementById('pdf-cust-name').innerText = sale.customer;
-            document.getElementById('pdf-date').innerText = sale.soldAt?.toDate().toLocaleDateString('km-KH');
             document.getElementById('pdf-total').innerText = '$' + sale.totalSale.toFixed(2);
             document.getElementById('pdf-items').innerHTML = `<tr><td class="col-desc">${sale.name}</td><td class="col-qty">${sale.qty}</td><td class="col-total">$${sale.totalSale.toFixed(2)}</td></tr>`;
-            
             const canvas = await html2canvas(document.getElementById('invoice-print-area'), { scale: 4 });
             const pdf = new jspdf.jsPDF({ unit: 'px', format: [canvas.width/4, canvas.height/4] });
             pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, canvas.width/4, canvas.height/4);
-            pdf.save(`Inv_${sale.customer}.pdf`);
+            pdf.save(`Inv_${sale.id.slice(0,5)}.pdf`);
         };
 
         window.checkout = async () => {
             if (!cart.length) return;
-            const customer = prompt("ឈ្មោះអតិថិជន:", "ភ្ញៀវទូទៅ") || "ភ្ញៀវទូទៅ";
+            const customer = prompt("ឈ្មោះអតិថិជន:", "ភ្ញៀវ") || "ភ្ញៀវ";
             for (let item of cart) {
                 await addDoc(collection(db, "sales"), { name: item.name, qty: item.qty, customer, totalSale: item.price * item.qty, soldAt: serverTimestamp() });
                 await updateDoc(doc(db, "products", item.id), { stock: item.stock - item.qty });
             }
-            alert("ជោគជ័យ!"); cart = []; updateCartUI(); toggleCart();
+            alert("រួចរាល់!"); cart = []; updateCartUI(); toggleCart();
         };
 
         window.switchTab = (tab) => {
@@ -229,6 +212,10 @@
         };
 
         window.toggleCart = () => document.getElementById('cartDrawer').classList.toggle('translate-x-full');
+        window.searchProducts = () => {
+            const term = document.getElementById('productSearch').value.toLowerCase();
+            renderProducts(allProducts.filter(p => p.name.toLowerCase().includes(term)));
+        };
     </script>
 </body>
 </html>
